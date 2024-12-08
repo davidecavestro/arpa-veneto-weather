@@ -24,7 +24,7 @@ Minimum required version of Home Assistant is **2024.11.0** as this integration 
 ## Installation through HACS (Recommended Method)
 
 If you are not familiar with HACS, or haven't installed it, I would recommend to [look through the HACS documentation](https://hacs.xyz/), before continuing.
-Register `https://github.com/davidecavestro/arpa-veneto-weather` as an [HACS custom repository](https://www.hacs.xyz/docs/faq/custom_repositories/) named `arpa-veneto-weather`.
+Register `https://github.com/davidecavestro/arpa-veneto-weather` as an [HACS custom repository](https://www.hacs.xyz/docs/faq/custom_repositories/) named `davidecavestro/arpa-veneto-weather`.
 
 ## Manual installation
 
@@ -88,7 +88,7 @@ For more details about ARPAV's copyright and licensing terms, visit their [websi
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/davidecavestro/arpa-veneto-weather.svg?style=flat-square
 [commits]: https://github.com/davidecavestro/arpa-veneto-weather/commits/main
-[hacs]: https://github.com/hacs/integration
+[hacs]: https://www.hacs.xyz/docs/faq/custom_repositories/
 [hacsbadge]: https://img.shields.io/badge/HACS-Default-orange.svg?style=flat-square
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=flat-square
 [forum]: https://community.home-assistant.io/
