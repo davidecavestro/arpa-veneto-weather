@@ -22,13 +22,16 @@ SENSOR_TYPES = {
     },
     "precipitation": {
         "name": "Precipitation",
-        "unit": "&",
+        "unit": "mm",
         "device_class": "precipitation",
+    },
+    "precipitation_probability": {
+        "name": "Precipitation probability",
+        "unit": "%",
     },
     "wind_bearing": {
         "name": "Wind bearing",
-        "unit": "°",
-        "device_class": "precipitation",
+        "unit": "degrees",
     },
     "wind_speed": {
         "name": "Wind speed",
