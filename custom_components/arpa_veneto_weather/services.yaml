@@ -1,0 +1,3 @@
+refresh_data:
+  name: "Refresh Weather Data"
+  description: "Manually refresh weather data from the API"
