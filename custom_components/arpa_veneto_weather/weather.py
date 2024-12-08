@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.const import UnitOfSpeed, UnitOfLength
 
 from .const import DOMAIN
 
@@ -93,6 +94,8 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
             "precipitation": self.precipitation,
             "wind_bearing": self.wind_bearing,
             "wind_speed": self.wind_speed,
+            "unit_of_measurement_wind_speed": UnitOfSpeed.METERS_PER_SECOND,
+            "unit_of_measurement_visibility": UnitOfLength.METERS,
         }
 
     async def async_forecast_twice_daily(self) -> list[Forecast] | None:
