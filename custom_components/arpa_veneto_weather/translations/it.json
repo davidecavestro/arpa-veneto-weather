@@ -1,0 +1,32 @@
+{
+    "title": "Meteo Arpa Veneto",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configura Meteo Arpa Veneto",
+                "description": "Scegli il comune per cercare la zona meteo da usare per le previsioni.",
+                "data": {
+                    "comune_id": "Comune"
+                }
+            },
+            "zone": {
+                "title": "Seleziona Zona",
+                "description": "Scegli una zona meteo per le previsioni.",
+                "data": {
+                    "zone_id": "Zona"
+                }
+            },
+            "station": {
+                "title": "Seleziona Stazione Meteo",
+                "description": "Scegli una stazione meteo per le condizioni meteo attuali.",
+                "data": {
+                    "station_id": "Stazione Meteo"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Impossibile connettersi all'API. Controlla le impostazioni.",
+            "invalid_comune": "Il comune selezionato non è valido."
+        }
+    }
+}

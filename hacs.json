@@ -1,0 +1,9 @@
+{
+    "name": "Arpa Veneto Weather",
+    "homeassistant": "2024.11.0",
+    "content_in_root": false,
+    "render_readme": true,
+    "hide_default_branch": true,
+    "zip_release": true,
+    "filename": "arpa-veneto-weather.zip"
+}

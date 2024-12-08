@@ -1,0 +1,15 @@
+{
+    "domain": "arpa_veneto_weather",
+    "name": "ARPA Veneto Weather",
+    "version": "0.1.0",
+    "requirements": [
+        "aiohttp"
+    ],
+    "dependencies": [],
+    "codeowners": [
+        "@davidecavestro"
+    ],
+    "config_flow": true,
+    "documentation": "https://github.com/davidecavestro/arpa-veneto-weather",
+    "issue_tracker": "https://github.com/davidecavestro/arpa-veneto-weather/issues"
+}

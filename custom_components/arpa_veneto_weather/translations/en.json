@@ -1,0 +1,34 @@
+{
+    "title": "Arpa Veneto Weather",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure Arpa Veneto Weather",
+                "description": "Choose the municipality to search for the weather zone to use for forecasts.",
+                "data": {
+                    "comune_id": "Municipality",
+                    "zone_id": "Zone",
+                    "station_id": "Weather Station"
+                }
+            },
+            "zone": {
+                "title": "Select Zone",
+                "description": "Choose a weather zone for the forecasts.",
+                "data": {
+                    "zone_id": "Zone"
+                }
+            },
+            "station": {
+                "title": "Select Weather Station",
+                "description": "Choose a weather station for current conditions.",
+                "data": {
+                    "station_id": "Weather Station"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Unable to connect to the API. Check your settings.",
+            "invalid_comune": "The selected municipality is invalid."
+        }
+    }
+}
