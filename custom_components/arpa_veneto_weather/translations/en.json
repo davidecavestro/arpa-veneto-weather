@@ -30,5 +30,35 @@
             "cannot_connect": "Unable to connect to the API. Check your settings.",
             "invalid_comune": "The selected municipality is invalid."
         }
+    },
+    "entity": {
+        "sensor": {
+            "temperature": {
+                "name": "Temperature in {station_name}"
+            },
+            "humidity": {
+                "name": "Humidity in {station_name}"
+            },
+            "visibility": {
+                "name": "Visibility in {station_name}"
+            },
+            "precipitation": {
+                "name": "Precipitation in {station_name}"
+            },
+            "wind_bearing": {
+                "name": "Wind bearing in {station_name}"
+            },
+            "wind_speed": {
+                "name": "Wind speed in {station_name}"
+            },
+            "uv_index": {
+                "name": "UV index in {station_name}"
+            }
+        },
+        "weather": {
+            "arpav": {
+                "name": "Conditions in {station_name} - forecast for {comune_name}"
+            }
+        }
     }
 }

@@ -5,9 +5,7 @@ from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.const import UnitOfSpeed, UnitOfLength
 
-from .const import DOMAIN
-
-API_BASE = "https://api.arpa.veneto.it/REST/v1"
+from .const import DOMAIN, API_BASE
 
 
 async def async_get_forecast(session):
@@ -40,14 +38,22 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     def __init__(self, coordinator, config_entry):
         """Init the entity with config data."""
         super().__init__(coordinator)  # Initialize the CoordinatorEntity
-        self._attr_name = f"Weather for {config_entry.data['comune_name']} with station {
-            config_entry.data['station_name']}"
-        self._attr_unique_id = f"arpav_weather_{config_entry.entry_id}"
+        self.comune_name = config_entry.data['comune_name']
+        self.comune_id = config_entry.data['comune_id']
+        self.station_name = config_entry.data['station_name']
+        self.station_id = config_entry.data['station_id']
 
-    @property
-    def name(self):
-        """Return the name of the weather entity."""
-        return self._attr_name
+        self._attr_unique_id = f"weather.arpav_{self.comune_id}_{self.station_id}"
+
+        self._attr_has_entity_name = True
+        self._attr_translation_key = 'arpav'
+        self._attr_attribution = "Weather data delivered by ARPA Veneto"
+
+        self._attr_translation_placeholders = {
+            "comune_name": self.comune_name,
+            "station_name": self.station_name,
+        }
+        self._attr_available = False  # Default to unavailable
 
     @property
     def temperature(self):
@@ -80,6 +86,11 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         return self.coordinator.data["sensors"].get("wind_speed")
 
     @property
+    def uv_index(self):
+        """Return the UV index from the coordinator data."""
+        return self.coordinator.data["sensors"].get("uv_index")
+
+    @property
     def supported_features(self) -> WeatherEntityFeature:
         """Determine supported features."""
         return WeatherEntityFeature.FORECAST_TWICE_DAILY
@@ -88,27 +99,25 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     def extra_state_attributes(self):
         """Return additional attributes."""
         return {
+            "station_id": self.station_id,
+            "comune_id": self.comune_id,
             "temperature": self.temperature,
             "humidity": self.humidity,
             "visibility": self.visibility,
             "precipitation": self.precipitation,
             "wind_bearing": self.wind_bearing,
             "wind_speed": self.wind_speed,
-            "unit_of_measurement_wind_speed": UnitOfSpeed.METERS_PER_SECOND,
-            "unit_of_measurement_visibility": UnitOfLength.METERS,
+            "uv_index": self.uv_index,
+            "unit_of_measurement_wind_speed": UnitOfSpeed.KILOMETERS_PER_HOUR,
+            "unit_of_measurement_visibility": UnitOfLength.KILOMETERS,
         }
+
+    def _forecasts(self):
+        return self.coordinator.data.get("forecast", [])
 
     async def async_forecast_twice_daily(self) -> list[Forecast] | None:
         """Return the twice-daily forecast."""
-        forecasts = self.coordinator.data.get("forecast", [])
-        return [
-            {
-                "datetime": entry["datetime"],
-                "temperature": entry["temperature"],
-                "condition": entry["condition"],
-                "precipitation_probability": entry["precipitation_probability"],
-                "is_daytime": entry["is_daytime"],
-                "type": entry["type"],
-            }
-            for entry in forecasts
-        ]
+        forecasts = self._forecasts()
+        self._attr_available = forecasts is not None and len(forecasts) > 0
+
+        return [f for f in forecasts if f.get('type') == 'twice_daily']

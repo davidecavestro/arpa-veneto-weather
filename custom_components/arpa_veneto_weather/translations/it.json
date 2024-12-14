@@ -28,5 +28,35 @@
             "cannot_connect": "Impossibile connettersi all'API. Controlla le impostazioni.",
             "invalid_comune": "Il comune selezionato non è valido."
         }
+    },
+    "entity": {
+        "sensor": {
+            "temperature": {
+                "name": "Temperatura a {station_name}"
+            },
+            "humidity": {
+                "name": "Umidità a {station_name}"
+            },
+            "visibility": {
+                "name": "Visiilità a {station_name}"
+            },
+            "precipitation": {
+                "name": "Precipitazioni a {station_name}"
+            },
+            "wind_bearing": {
+                "name": "Direzione vento a {station_name}"
+            },
+            "wind_speed": {
+                "name": "Velocità vento a {station_name}"
+            },
+            "uv_index": {
+                "name": "Indice UV a {station_name}"
+            }
+        },
+        "weather": {
+            "arpav": {
+                "name": "Situazione a {station_name} - previsioni per {comune_name}"
+            }
+        }
     }
 }

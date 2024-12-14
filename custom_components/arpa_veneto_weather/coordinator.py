@@ -3,7 +3,7 @@ import logging
 import re
 
 import aiohttp
-from .const import API_BASE, DOMAIN
+from .const import API_BASE, CARDINAL_DIRECTIONS, DOMAIN
 
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -32,7 +32,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch the latest data from the API."""
         sensor_data = await fetch_station_data(self.station_id)
-        forecast_data = await fetch_forecast_data(self.zone_id)
+        forecast_data = await _fetch_forecast_data(self.zone_id)
         return {
             "forecast": forecast_data,
             "sensors": sensor_data,  # Include sensor data like temperature
@@ -56,13 +56,17 @@ async def fetch_station_data(station_id):
         elif entry.get("tipo") == "UMID2M":
             extracted_data["humidity"] = int(entry.get("valore"))
         elif entry.get("tipo") == "VISIB":
-            extracted_data["visibility"] = int(entry.get("valore"))
+            extracted_data["visibility"] = round(int(entry.get("valore")) / 1000, 2)
         elif entry.get("tipo") == "PREC":
             extracted_data["precipitation"] = float(entry.get("valore"))
         elif entry.get("tipo") == "DVENTO10M":
-            extracted_data["wind_bearing"] = int(entry.get("valore"))
+            degrees = int(entry.get("valore"))
+            extracted_data["native_wind_bearing"] = degrees
+            extracted_data["wind_bearing"] = CARDINAL_DIRECTIONS[int((degrees + 11.25)/22.5)]
         elif entry.get("tipo") == "VVENTO10M":
-            extracted_data["wind_speed"] = float(entry.get("valore"))
+            extracted_data["wind_speed"] = round(float(entry.get("valore")) * 3.6, 2)
+        elif entry.get("tipo") == "RADSOL":
+            extracted_data["uv_index"] = round(float(entry.get("valore")) / 0.025)
 
     extracted_data["last_update"] = datetime.now().isoformat()
 
@@ -90,23 +94,26 @@ condition_lookup = {
     "sunny": ["a1", "a2"],
 }
 
-def get_forecast_condition(condition_text):
+def _get_forecast_condition(condition_text):
     """Determine the forecast condition from text."""
     for condition, symbols in condition_lookup.items():
         if any(symbol in condition_text for symbol in symbols):
             return condition
     return None  # or a default value if no match is found
 
-def parse_temperature_range(temp_range):
-    """Convert a temperature range string to a mean value."""
-    if temp_range == "":
-        return None
-    if "/" in temp_range:
-        low, high = map(float, temp_range.split("/"))
-        return (low + high) / 2
-    return float(temp_range)
+def _get_forecast_temperature_dict(temp_range):
+    """Convert a temperature into a dict with templow if it's a range."""
+    min_temp = None
+    max_temp = None
 
-def parse_precipitation_prob(prob):
+    if "/" in temp_range:
+        min_temp, max_temp = map(float, temp_range.split('/'))
+    elif temp_range != "":
+        max_temp = float(temp_range)
+
+    return {"templow": min_temp, "temperature": max_temp}
+
+def _parse_precipitation_prob(prob):
     """Strip the suffix from  a probability text."""
     if prob == "":
         return None
@@ -115,21 +122,27 @@ def parse_precipitation_prob(prob):
 
 def _get_forecast_type(intervallo):
     """Determine the forecast type (once or twice daily)."""
+    if not intervallo:
+        return "daily"
+
     return {
         "night/morning": "twice_daily",
         "afternoon/evening": "twice_daily",
-        "": "daily"
     }.get(intervallo)
 
-def get_forecast_daytime(intervallo):
+def _get_forecast_daytime_dict(intervallo):
     """Determine if the intervallo is about day or night."""
-    return {
-        "night/morning": False,
-        "afternoon/evening": True,
-        "": True
-    }.get(intervallo)
+    if not intervallo:
+        # return {}
+        day_time = True
+    else:
+        day_time = {
+            "night/morning": False, "afternoon/evening": True,
+        }.get(intervallo)
 
-def get_forecast_datetime(scadenza, intervallo):
+    return {"is_daytime": day_time}
+
+def _get_forecast_datetime(scadenza, intervallo):
     """Parse the date string into a date object."""
     date = datetime.strptime(scadenza, "%Y-%m-%d").date()
 
@@ -149,7 +162,7 @@ def get_forecast_datetime(scadenza, intervallo):
     datetime_str = f"{date} {time_str}"
     return datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
 
-async def fetch_forecast_data(zone_id):
+async def _fetch_forecast_data(zone_id):
     """Fetch data from the station."""
     url = f"{API_BASE}/bollettini_meteo_simboli_en?zona={zone_id}"
     async with aiohttp.ClientSession() as session, session.get(url) as response:
@@ -158,15 +171,23 @@ async def fetch_forecast_data(zone_id):
         data = await response.json()
 
     forecasts = [
-        {
-            "datetime": get_forecast_datetime(entry["scadenza"], entry["intervallo"]),
-            "type": _get_forecast_type(entry["intervallo"]),
-            "is_daytime": get_forecast_daytime(entry["intervallo"]),
-            "temperature": parse_temperature_range(entry["temperatura"]),
-            "condition": get_forecast_condition(entry["simbolo"]),
-            "precipitation_probability": parse_precipitation_prob(entry["prob precipitazioni"]),
-        }
+        _assemble_forecast_dict(entry)
         for entry in data.get("data", [])
     ]
 
     return forecasts
+
+def _assemble_forecast_dict(entry):
+
+    static_props = {
+        "datetime": _get_forecast_datetime(entry["scadenza"], entry["intervallo"]),
+        "type": _get_forecast_type(entry["intervallo"]),
+        "condition": _get_forecast_condition(entry["simbolo"]),
+        "precipitation_probability": _parse_precipitation_prob(entry["prob precipitazioni"]),
+    }
+
+    temperature_dict = _get_forecast_temperature_dict(entry["temperatura"])
+    daytime_dict = _get_forecast_daytime_dict(entry["intervallo"])
+    props_dict = static_props | temperature_dict | daytime_dict
+
+    return props_dict

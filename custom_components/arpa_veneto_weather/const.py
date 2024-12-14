@@ -17,7 +17,7 @@ SENSOR_TYPES = {
     },
     "visibility": {
         "name": "Visibility",
-        "unit": "m",
+        "unit": "km",
         "device_class": "visibility",
     },
     "precipitation": {
@@ -28,13 +28,22 @@ SENSOR_TYPES = {
     "precipitation_probability": {
         "name": "Precipitation probability",
         "unit": "%",
+        "device_class": "probability",
     },
     "wind_bearing": {
         "name": "Wind bearing",
-        "unit": "degrees",
+        "device_class": "direction",
     },
     "wind_speed": {
         "name": "Wind speed",
-        "unit": "m/s",
+        "unit": "km/h",
+        "device_class": "wind",
+    },
+    "uv_index": {
+        "name": "UV index",
+        "device_class": "measure",
     },
 }
+
+CARDINAL_DIRECTIONS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE',
+                       'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
