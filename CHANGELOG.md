@@ -1,4 +1,9 @@
 
+## [0.2.0] - 2024-12-14
+### :sparkles: New Features
+- [`7e52aba`](https://github.com/davidecavestro/arpa-veneto-weather/commit/7e52aba5ffc1192c49b4afa750491fb8aacec123) - add uv_index and refine unit of measures for sensors *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.1.2] - 2024-12-08
 ### :bug: Bug Fixes
 - [`5f1bdc2`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5f1bdc21ec095418037b96c2e8b0f6a5aa145b8f) - wrong UM for weather entity wind speed and visibility *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -20,3 +25,4 @@
 [0.1.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.0.0...0.1.0
 [0.1.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.1.0...0.1.1
 [0.1.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.1.1...0.1.2
+[0.2.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.1.2...0.2.0
