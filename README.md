@@ -47,7 +47,7 @@ To add Arpa Veneto Weather to your installation, do the following:
   | --------- | -------- | ------------- | ----------- |
   | `Comune ID` | Yes | None | Set the municipality to use for a a forecast zone lookup, based on [synthetic forecast by zone](https://meteo.arpa.veneto.it/?page=comuni_geo). |
   | `Zone ID` | Yes | None | Set the forecast zone. |
-  | `Station ID` | Yes | None | Choose the Weather Station for relatime data among the available ones. Check[the meteo variables page](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo). |
+  | `Station ID` | Yes | None | Choose the Weather Station for getting current conditions among the available ones. Check [the meteo variables page](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo). |
 
 - Complete the wizard to save your data. If all goes well you should now have a new Weather entity with data from Arpav Forecast
 - **Please Note**: You can configure multiple instances of the Integration.
