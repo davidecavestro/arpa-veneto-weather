@@ -41,7 +41,8 @@ SENSOR_TYPES = {
     },
     "uv_index": {
         "name": "UV index",
-        "device_class": "measure",
+        "unit": "UV index",
+        "device_class": "uv_index",
     },
 }
 
