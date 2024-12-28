@@ -10,7 +10,7 @@ Home Assistant unofficial integration for Arpa Veneto Weather current conditions
 
 This integration adds support for retrieving the Forecast data from the [Arpav bulletin endpoint](https://api.arpa.veneto.it/REST/v1/bollettini_meteo_simboli_en) and current conditions from [Arpav meteogram endpoint](https://api.arpa.veneto.it/REST/v1/meteo_meteogrammi_tabella).
 
-For this integration you must choose an Arpav forecast zone for forecast data and a weather station for currnet conditions.
+For this integration you must choose an Arpav forecast zone for forecast data and a weather station for current conditions.
 
 #### This integration will set up the following platforms.
 
@@ -30,7 +30,7 @@ Register `davidecavestro/arpa-veneto-weather` as an [HACS custom repository](htt
 ## Manual installation
 
 1. Create a new folder in your configuration folder (where the `configuration.yaml` lives) called `custom_components`
-2. Download the [latest version](https://github.com/davidecavestro/arpa-venete-weather/releases) into the `custom_components` folder so that the full path from your config folder is `custom_components/arpa_veneto_weather/`
+2. Download the [latest version](https://github.com/davidecavestro/arpa-veneto-weather/releases) into the `custom_components` folder so that the full path from your config folder is `custom_components/arpa_veneto_weather/`
 3. Restart Home Assistant.
 4. Once Home Assistant is started, from the UI go to Configuration > Integrations > Add Integrations. Search for "Arpa Veneto Weather". After selecting, it could take up to a minute.
 
