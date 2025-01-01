@@ -94,23 +94,6 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         """Determine supported features."""
         return WeatherEntityFeature.FORECAST_TWICE_DAILY
 
-    # @property
-    # def extra_state_attributes(self):
-    #     """Return additional attributes."""
-    #     return {
-    #         "station_id": self.station_id,
-    #         "comune_id": self.comune_id,
-    #         "temperature": self.temperature,
-    #         "humidity": self.humidity,
-    #         "visibility": self.visibility,
-    #         "precipitation": self.precipitation,
-    #         "wind_bearing": self.wind_bearing,
-    #         "wind_speed": self.wind_speed,
-    #         "uv_index": self.uv_index,
-    #         "unit_of_measurement_wind_speed": UnitOfSpeed.KILOMETERS_PER_HOUR,
-    #         "unit_of_measurement_visibility": UnitOfLength.KILOMETERS,
-    #     }
-
     def _forecasts(self):
         return self.coordinator.data.get("forecast", [])
 
