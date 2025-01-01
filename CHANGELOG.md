@@ -1,4 +1,14 @@
 
+## [0.2.2] - 2025-01-01
+### :bug: Bug Fixes
+- [`038ac61`](https://github.com/davidecavestro/arpa-veneto-weather/commit/038ac6184440a6c1362b102928df6a57748aeb1a) - temperature. visibility and precipitation missing from weather entity *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`7b62d73`](https://github.com/davidecavestro/arpa-veneto-weather/commit/7b62d73605666b362f75cab6a605d4b4e5268467) - typo on visibility IT translation *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`1a14c61`](https://github.com/davidecavestro/arpa-veneto-weather/commit/1a14c61f71b688f8f1dc66b7984207b5e1a747af) - uv index from data in MJ/m2 is wrong *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`4d8aaa8`](https://github.com/davidecavestro/arpa-veneto-weather/commit/4d8aaa8de679a356e4a3ba6494f95739234e1a2c) - code cleanup *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.2.1] - 2024-12-15
 ### :bug: Bug Fixes
 - [`dec3666`](https://github.com/davidecavestro/arpa-veneto-weather/commit/dec3666e6213bf6f3db310beab9afb3cb9c053b7) - UV index unit of measure *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -32,3 +42,4 @@
 [0.1.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.1.1...0.1.2
 [0.2.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.1.2...0.2.0
 [0.2.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.0...0.2.1
+[0.2.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.1...0.2.2
