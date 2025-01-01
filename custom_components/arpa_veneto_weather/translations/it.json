@@ -38,7 +38,7 @@
                 "name": "Umidità a {station_name}"
             },
             "visibility": {
-                "name": "Visiilità a {station_name}"
+                "name": "Visibilità a {station_name}"
             },
             "precipitation": {
                 "name": "Precipitazioni a {station_name}"
