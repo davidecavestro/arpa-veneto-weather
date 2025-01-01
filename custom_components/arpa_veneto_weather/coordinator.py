@@ -66,7 +66,10 @@ async def fetch_station_data(station_id):
         elif entry.get("tipo") == "VVENTO10M":
             extracted_data["wind_speed"] = round(float(entry.get("valore")) * 3.6, 2)
         elif entry.get("tipo") == "RADSOL":
-            extracted_data["uv_index"] = round(float(entry.get("valore")) / 0.025)
+            if (entry.get("unitnm") == "MJ/m2"):
+                extracted_data["uv_index"] = round(float(entry.get("valore")) * 0.06 * 40)
+            else:
+                extracted_data["uv_index"] = round(float(entry.get("valore")) / 0.025)
 
     extracted_data["last_update"] = datetime.now().isoformat()
 
