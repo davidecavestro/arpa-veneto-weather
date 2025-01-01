@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.const import UnitOfSpeed, UnitOfLength
 
 from .const import DOMAIN, API_BASE
 
@@ -47,7 +46,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
 
         self._attr_has_entity_name = True
         self._attr_translation_key = 'arpav'
-        self._attr_attribution = "Weather data delivered by ARPA Veneto"
+        self._attr_attribution = "Weather data by ARPA Veneto"
 
         self._attr_translation_placeholders = {
             "comune_name": self.comune_name,
@@ -56,7 +55,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         self._attr_available = False  # Default to unavailable
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         """Return the temperature from the sensor data."""
         return self.coordinator.data["sensors"].get("temperature")
 
@@ -66,12 +65,12 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         return self.coordinator.data["sensors"].get("humidity")
 
     @property
-    def visibility(self):
+    def native_visibility(self):
         """Return the visibility from the coordinator data."""
         return self.coordinator.data["sensors"].get("visibility")
 
     @property
-    def precipitation(self):
+    def native_precipitation(self):
         """Return the precipitation from the coordinator data."""
         return self.coordinator.data["sensors"].get("precipitation")
 
@@ -81,7 +80,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         return self.coordinator.data["sensors"].get("wind_bearing")
 
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         """Return the wind speed from the coordinator data."""
         return self.coordinator.data["sensors"].get("wind_speed")
 
@@ -95,22 +94,22 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         """Determine supported features."""
         return WeatherEntityFeature.FORECAST_TWICE_DAILY
 
-    @property
-    def extra_state_attributes(self):
-        """Return additional attributes."""
-        return {
-            "station_id": self.station_id,
-            "comune_id": self.comune_id,
-            "temperature": self.temperature,
-            "humidity": self.humidity,
-            "visibility": self.visibility,
-            "precipitation": self.precipitation,
-            "wind_bearing": self.wind_bearing,
-            "wind_speed": self.wind_speed,
-            "uv_index": self.uv_index,
-            "unit_of_measurement_wind_speed": UnitOfSpeed.KILOMETERS_PER_HOUR,
-            "unit_of_measurement_visibility": UnitOfLength.KILOMETERS,
-        }
+    # @property
+    # def extra_state_attributes(self):
+    #     """Return additional attributes."""
+    #     return {
+    #         "station_id": self.station_id,
+    #         "comune_id": self.comune_id,
+    #         "temperature": self.temperature,
+    #         "humidity": self.humidity,
+    #         "visibility": self.visibility,
+    #         "precipitation": self.precipitation,
+    #         "wind_bearing": self.wind_bearing,
+    #         "wind_speed": self.wind_speed,
+    #         "uv_index": self.uv_index,
+    #         "unit_of_measurement_wind_speed": UnitOfSpeed.KILOMETERS_PER_HOUR,
+    #         "unit_of_measurement_visibility": UnitOfLength.KILOMETERS,
+    #     }
 
     def _forecasts(self):
         return self.coordinator.data.get("forecast", [])
