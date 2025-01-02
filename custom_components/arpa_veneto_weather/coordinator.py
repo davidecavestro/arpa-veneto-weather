@@ -66,10 +66,13 @@ async def fetch_station_data(station_id):
         elif entry.get("tipo") == "VVENTO10M":
             extracted_data["wind_speed"] = round(float(entry.get("valore")) * 3.6, 2)
         elif entry.get("tipo") == "RADSOL":
+            # Assuming UV Fraction = 6% => 0.06
             if (entry.get("unitnm") == "MJ/m2"):
+                # For MJ/m², the scaling factor is 40 because it includes cumulative energy and time
                 extracted_data["uv_index"] = round(float(entry.get("valore")) * 0.06 * 40)
-            else:
-                extracted_data["uv_index"] = round(float(entry.get("valore")) / 0.025)
+            elif (entry.get("unitnm") == "w/m2"):
+                # For W/m², the scaling factor is 0.04 because it represents instantaneous power
+                extracted_data["uv_index"] = round(float(entry.get("valore")) * 0.06 * 0.04)
 
     extracted_data["last_update"] = datetime.now().isoformat()
 
