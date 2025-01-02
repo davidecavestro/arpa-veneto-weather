@@ -1,4 +1,9 @@
 
+## [0.2.4] - 2025-01-02
+### :bug: Bug Fixes
+- [`9f0ef59`](https://github.com/davidecavestro/arpa-veneto-weather/commit/9f0ef59a19cfb161ffbd046eec0c76d642f94dec) - support UV expressed in w/m2 *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.2.3] - 2025-01-02
 ### :bug: Bug Fixes
 - [`5f838f2`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5f838f27b2291906860a5a44f9b9db1b57cd8a75) - support UV expressed in w/m2 *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -49,3 +54,4 @@
 [0.2.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.0...0.2.1
 [0.2.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.1...0.2.2
 [0.2.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.2...0.2.3
+[0.2.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.3...0.2.4
