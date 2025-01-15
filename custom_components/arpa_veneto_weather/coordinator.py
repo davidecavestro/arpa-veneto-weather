@@ -107,15 +107,23 @@ def _get_forecast_condition(condition_text):
             return condition
     return None  # or a default value if no match is found
 
-def _get_forecast_temperature_dict(temp_range):
+def _get_forecast_temperature_dict(entry):
     """Convert a temperature into a dict with templow if it's a range."""
     min_temp = None
     max_temp = None
 
-    if "/" in temp_range:
-        min_temp, max_temp = map(float, temp_range.split('/'))
-    elif temp_range != "":
-        max_temp = float(temp_range)
+    # Use a generator to filter keys starting with "temperatura"
+    first_valid_value = next(
+        (value for key, value in entry.items() if key.startswith(
+            "temperatura") and value not in (None, "")),
+        None
+    )
+    if (first_valid_value is None):
+        return {}
+    elif "/" in first_valid_value:
+        min_temp, max_temp = map(float, first_valid_value.split('/'))
+    elif first_valid_value != "":
+        max_temp = float(first_valid_value)
 
     return {"templow": min_temp, "temperature": max_temp}
 
@@ -192,7 +200,7 @@ def _assemble_forecast_dict(entry):
         "precipitation_probability": _parse_precipitation_prob(entry["prob precipitazioni"]),
     }
 
-    temperature_dict = _get_forecast_temperature_dict(entry["temperatura"])
+    temperature_dict = _get_forecast_temperature_dict(entry)
     daytime_dict = _get_forecast_daytime_dict(entry["intervallo"])
     props_dict = static_props | temperature_dict | daytime_dict
 
