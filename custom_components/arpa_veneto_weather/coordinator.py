@@ -109,23 +109,22 @@ def _get_forecast_condition(condition_text):
 
 def _get_forecast_temperature_dict(entry):
     """Convert a temperature into a dict with templow if it's a range."""
-    min_temp = None
-    max_temp = None
-
     # Use a generator to filter keys starting with "temperatura"
     first_valid_value = next(
         (value for key, value in entry.items() if key.startswith(
             "temperatura") and value not in (None, "")),
         None
     )
+    retval = None
     if (first_valid_value is None):
-        return {}
+        retval = {"tempmiss": True}
     elif "/" in first_valid_value:
         min_temp, max_temp = map(float, first_valid_value.split('/'))
+        retval = {"templow": min_temp, "temperature": max_temp}
     elif first_valid_value != "":
-        max_temp = float(first_valid_value)
+        retval = {"temperature": float(first_valid_value)}
 
-    return {"templow": min_temp, "temperature": max_temp}
+    return retval
 
 def _parse_precipitation_prob(prob):
     """Strip the suffix from  a probability text."""
