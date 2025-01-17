@@ -1,4 +1,9 @@
 
+## [0.2.6] - 2025-01-17
+### :bug: Bug Fixes
+- [`af193f3`](https://github.com/davidecavestro/arpa-veneto-weather/commit/af193f33afd715dc549247cab3dac5dde2c135c8) - [#3](https://github.com/davidecavestro/arpa-veneto-weather/pull/3) provide min/max temp just when available *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.2.5] - 2025-01-15
 ### :bug: Bug Fixes
 - [`de68889`](https://github.com/davidecavestro/arpa-veneto-weather/commit/de68889368aaa636515052effa194c450a734271) - missing forecast due to lack of temperature data [#3](https://github.com/davidecavestro/arpa-veneto-weather/pull/3) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -61,3 +66,4 @@
 [0.2.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.2...0.2.3
 [0.2.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.3...0.2.4
 [0.2.5]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.4...0.2.5
+[0.2.6]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.5...0.2.6
