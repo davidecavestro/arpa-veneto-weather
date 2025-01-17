@@ -51,19 +51,19 @@ async def fetch_station_data(station_id):
     # Extract temperature, humidity, and other data
     for entry in data.get("data", []):
         extracted_data["station_name"] = entry.get("nome_stazione")
-        if entry.get("tipo") == "TARIA2M":
+        if entry.get("tipo").startswith("TARIA"):
             extracted_data["temperature"] = float(entry.get("valore"))
-        elif entry.get("tipo") == "UMID2M":
+        elif entry.get("tipo").startswith("UMID"):
             extracted_data["humidity"] = int(entry.get("valore"))
         elif entry.get("tipo") == "VISIB":
             extracted_data["visibility"] = round(int(entry.get("valore")) / 1000, 2)
         elif entry.get("tipo") == "PREC":
             extracted_data["precipitation"] = float(entry.get("valore"))
-        elif entry.get("tipo") == "DVENTO10M":
+        elif entry.get("tipo").startswith("DVENTO"):
             degrees = int(entry.get("valore"))
             extracted_data["native_wind_bearing"] = degrees
             extracted_data["wind_bearing"] = CARDINAL_DIRECTIONS[int((degrees + 11.25)/22.5)]
-        elif entry.get("tipo") == "VVENTO10M":
+        elif entry.get("tipo").startswith("VVENTO"):
             extracted_data["wind_speed"] = round(float(entry.get("valore")) * 3.6, 2)
         elif entry.get("tipo") == "RADSOL":
             # Assuming UV Fraction = 6% => 0.06
@@ -120,9 +120,9 @@ def _get_forecast_temperature_dict(entry):
         retval = {"tempmiss": True}
     elif "/" in first_valid_value:
         min_temp, max_temp = map(float, first_valid_value.split('/'))
-        retval = {"templow": min_temp, "temperature": max_temp}
+        retval = {"native_templow": min_temp, "native_temperature": max_temp}
     elif first_valid_value != "":
-        retval = {"temperature": float(first_valid_value)}
+        retval = {"native_temperature": float(first_valid_value)}
 
     return retval
 
@@ -200,7 +200,8 @@ def _assemble_forecast_dict(entry):
     }
 
     temperature_dict = _get_forecast_temperature_dict(entry)
-    daytime_dict = _get_forecast_daytime_dict(entry["intervallo"])
+    daytime_dict = {} if static_props["type"] == "daily" else _get_forecast_daytime_dict(
+        entry["intervallo"])
     props_dict = static_props | temperature_dict | daytime_dict
 
     return props_dict

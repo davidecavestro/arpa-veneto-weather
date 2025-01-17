@@ -1,5 +1,6 @@
 """Main entity for Arpa Veneto Weather component."""
 from __future__ import annotations
+from collections import defaultdict
 
 from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -92,7 +93,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     @property
     def supported_features(self) -> WeatherEntityFeature:
         """Determine supported features."""
-        return WeatherEntityFeature.FORECAST_TWICE_DAILY
+        return WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_TWICE_DAILY
 
     def _forecasts(self):
         return self.coordinator.data.get("forecast", [])
@@ -103,3 +104,45 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         self._attr_available = forecasts is not None and len(forecasts) > 0
 
         return [f for f in forecasts if f.get('type') == 'twice_daily']
+
+    async def async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast."""
+        forecasts = self._forecasts()
+        self._attr_available = forecasts is not None and len(forecasts) > 0
+
+        # Step 1: Group by date
+        grouped_data = defaultdict(list)
+        for entry in forecasts:
+            # Extract the date (ignoring time)
+            date = (entry["datetime"]).date()
+            grouped_data[date].append(entry)
+
+        # Step 2: Process each group to generate the desired output
+        result = []
+        for date, entries in grouped_data.items():
+            # Find all 'twice_daily' entries with is_daytime=True
+            daytime_entries = [e for e in entries if e.get(
+                "type") == "twice_daily" and e.get("is_daytime")]
+
+            if daytime_entries:
+                # Take the first daytime entry for the date
+                selected_entry = daytime_entries[0].copy()
+
+                # Calculate max temperature and min temperature for the date
+                temperatures = [e.get("native_temperature")
+                                for e in entries if "native_temperature" in e]
+                selected_entry["native_temperature"] = max(temperatures)
+                if len(temperatures) > 1:
+                    selected_entry["native_templow"] = min(temperatures)
+
+                # Replace datetime with the date as string
+                selected_entry["datetime"] = str(date)
+                # Make it a daily entry
+                selected_entry["type"] = "daily"
+            else:
+                selected_entry = entries[0]
+
+            result.append(selected_entry)
+
+        # return [f for f in forecasts if f.get('type') == 'daily']
+        return result
