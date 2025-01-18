@@ -1,4 +1,13 @@
 
+## [0.2.7] - 2025-01-18
+### :bug: Bug Fixes
+- [`da879b4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/da879b47cf8469d2151a97769805890b9b3a1f6e) - use the mean temp when exposing twice-daily ranges as daily forecasts *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`c055574`](https://github.com/davidecavestro/arpa-veneto-weather/commit/c0555748d8341148825045302e0e9f6732eedf51) - add hacs validation *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`39a60bb`](https://github.com/davidecavestro/arpa-veneto-weather/commit/39a60bb5cee6eded1bb17608f43f9b43dcc68a2f) - validate HACS just on-demand until some brand img is properly published *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.2.6] - 2025-01-17
 ### :bug: Bug Fixes
 - [`af193f3`](https://github.com/davidecavestro/arpa-veneto-weather/commit/af193f33afd715dc549247cab3dac5dde2c135c8) - [#3](https://github.com/davidecavestro/arpa-veneto-weather/pull/3) provide min/max temp just when available *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -67,3 +76,4 @@
 [0.2.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.3...0.2.4
 [0.2.5]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.4...0.2.5
 [0.2.6]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.5...0.2.6
+[0.2.7]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.6...0.2.7
