@@ -128,12 +128,20 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
                 # Take the first daytime entry for the date
                 selected_entry = daytime_entries[0].copy()
 
+                # Calculate temperatures, considering native_templow if available
+                temperatures = [
+                    (e["native_temperature"] + e["native_templow"]) / 2
+                    if "native_templow" in e
+                    else e["native_temperature"]
+                    for e in entries
+                    if "native_temperature" in e
+                ]
                 # Calculate max temperature and min temperature for the date
-                temperatures = [e.get("native_temperature")
-                                for e in entries if "native_temperature" in e]
                 selected_entry["native_temperature"] = max(temperatures)
                 if len(temperatures) > 1:
                     selected_entry["native_templow"] = min(temperatures)
+                elif "native_templow" in selected_entry:  # no hightly forecast -> no min
+                    del selected_entry["native_templow"]
 
                 # Replace datetime with the date as string
                 selected_entry["datetime"] = str(date)
