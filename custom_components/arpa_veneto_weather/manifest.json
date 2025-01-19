@@ -1,7 +1,6 @@
 {
     "domain": "arpa_veneto_weather",
     "name": "ARPA Veneto Weather",
-    "version": "0.1.0",
     "iot_class": "cloud_polling",
     "integration_type": "hub",
     "requirements": [
