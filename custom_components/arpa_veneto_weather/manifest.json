@@ -3,7 +3,6 @@
     "name": "ARPA Veneto Weather",
     "version": "0.0.0",
     "iot_class": "cloud_polling",
-    "integration_type": "hub",
     "requirements": [
         "aiohttp"
     ],
