@@ -154,3 +154,35 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
 
         # return [f for f in forecasts if f.get('type') == 'daily']
         return result
+        
+    @property
+    def extra_state_attributes(self):
+        """Return additional state attributes with forecast summary for today, tomorrow, and day after."""
+        forecasts = self._forecasts()
+        if not forecasts or len(forecasts) < 3:
+            return {}
+    
+        def get_attr(entry, key):
+            return entry.get(key) or ""
+    
+        today = forecasts[0]
+        tomorrow = forecasts[1]
+        day_after = forecasts[2]
+    
+        return {
+            "forecast_today_description": get_attr(today, "weather_description"),
+            "forecast_today_precipitation": get_attr(today, "precipitation_description"),
+            "forecast_today_precipitation_probability": get_attr(today, "precipitation_probability"),
+            "forecast_today_reliability": get_attr(today, "forecast_reliability"),
+    
+            "forecast_tomorrow_description": get_attr(tomorrow, "weather_description"),
+            "forecast_tomorrow_precipitation": get_attr(tomorrow, "precipitation_description"),
+            "forecast_tomorrow_precipitation_probability": get_attr(tomorrow, "precipitation_probability"),
+            "forecast_tomorrow_reliability": get_attr(tomorrow, "forecast_reliability"),
+    
+            "forecast_day_after_tomorrow_description": get_attr(day_after, "weather_description"),
+            "forecast_day_after_tomorrow_precipitation": get_attr(day_after, "precipitation_description"),
+            "forecast_day_after_tomorrow_precipitation_probability": get_attr(day_after, "precipitation_probability"),
+            "forecast_day_after_tomorrow_reliability": get_attr(day_after, "forecast_reliability"),
+    }
+        
