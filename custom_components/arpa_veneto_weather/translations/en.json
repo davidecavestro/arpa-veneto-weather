@@ -31,6 +31,16 @@
             "invalid_comune": "The selected municipality is invalid."
         }
     },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "expose_forecast_json": "Expose JSON extra attribute for internal forecast data",
+                    "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data"
+                }
+            }
+        }
+    },
     "entity": {
         "sensor": {
             "temperature": {

@@ -6,8 +6,10 @@ import aiohttp
 from .const import API_BASE, CARDINAL_DIRECTIONS, DOMAIN
 
 
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed
+)
 
 
 from datetime import datetime
@@ -31,10 +33,12 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch the latest data from the API."""
+        _LOGGER.warning("Fetching data")
         sensor_data = await fetch_station_data(self.station_id)
-        forecast_data = await _fetch_forecast_data(self.zone_id)
+        forecast_data, forecast_raw = await _fetch_forecast_data(self.zone_id)
         return {
             "forecast": forecast_data,
+            "forecast_raw": forecast_raw,
             "sensors": sensor_data,  # Include sensor data like temperature
         }
 
@@ -188,7 +192,7 @@ async def _fetch_forecast_data(zone_id):
         for entry in data.get("data", [])
     ]
 
-    return forecasts
+    return forecasts, data
 
 def _assemble_forecast_dict(entry):
 
