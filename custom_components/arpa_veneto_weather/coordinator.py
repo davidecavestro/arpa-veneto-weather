@@ -203,6 +203,7 @@ def _assemble_forecast_dict(entry):
         "precipitation_probability": _parse_precipitation_prob(entry["prob precipitazioni"]),
         "forecast_reliability": entry["attendibilita"],
         "weather_description": entry["testo"],
+        "precipitation_description": entry["precipitazioni"],
     }
 
     temperature_dict = _get_forecast_temperature_dict(entry)
