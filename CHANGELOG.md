@@ -1,4 +1,14 @@
 
+## [0.3.0] - 2025-06-15
+### :wrench: Chores
+- [`76ca91b`](https://github.com/davidecavestro/arpa-veneto-weather/commit/76ca91b7ab6de97e16935c436d6c9cb6092792e4) - add iot_class and integration_type to manifest *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`a7098bc`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a7098bc55df3dd196922d2c464e84a41d396d0b1) - remove version from manifest *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`caa9654`](https://github.com/davidecavestro/arpa-veneto-weather/commit/caa965413c927dba514f277b4aa020fd189bb7c7) - restore version into manifest.json for dev time *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`06b1312`](https://github.com/davidecavestro/arpa-veneto-weather/commit/06b1312643cfe108b4a995048bbb7cebced717c5) - remove the iot_class attribute *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`dfdadc0`](https://github.com/davidecavestro/arpa-veneto-weather/commit/dfdadc08e165fbd5d1366bb7629c097bbd691804) - add forecast_reliability weather_description attrs to internal forecast representation *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`5a755aa`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5a755aa4da13aac2ed2bebb230c6f4bc7f549b83) - add precipitation_description attr to internal forecast representation *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.2.7] - 2025-01-18
 ### :bug: Bug Fixes
 - [`da879b4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/da879b47cf8469d2151a97769805890b9b3a1f6e) - use the mean temp when exposing twice-daily ranges as daily forecasts *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -77,3 +87,4 @@
 [0.2.5]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.4...0.2.5
 [0.2.6]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.5...0.2.6
 [0.2.7]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.6...0.2.7
+[0.3.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.7...0.3.0
