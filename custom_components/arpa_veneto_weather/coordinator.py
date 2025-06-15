@@ -201,6 +201,8 @@ def _assemble_forecast_dict(entry):
         "type": _get_forecast_type(entry["intervallo"]),
         "condition": _get_forecast_condition(entry["simbolo"]),
         "precipitation_probability": _parse_precipitation_prob(entry["prob precipitazioni"]),
+        "forecast_reliability": entry["attendibilita"],
+        "weather_description": entry["testo"],
     }
 
     temperature_dict = _get_forecast_temperature_dict(entry)
