@@ -1,11 +1,19 @@
 """Main entity for Arpa Veneto Weather component."""
 from __future__ import annotations
 from collections import defaultdict
+from datetime import datetime
+import json
 
 from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, API_BASE
+from .const import (
+    CONF_EXPOSE_FORECAST_JSON,
+    CONF_EXPOSE_FORECAST_RAW,
+    DOMAIN,
+    API_BASE,
+    KEY_COORDINATOR
+)
 
 
 async def async_get_forecast(session):
@@ -28,9 +36,17 @@ async def async_get_current_conditions(session, station_id):
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up ARPA Veneto sensors from a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = hass.data[DOMAIN][config_entry.entry_id][KEY_COORDINATOR]
     async_add_entities([ArpaVenetoWeatherEntity(coordinator, config_entry)])
 
+class DateTimeEncoder(json.JSONEncoder):
+    """Encoder for datetime."""
+
+    def default(self, obj):
+        """Encode datetime to json."""
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     """Representation of the ARPA Veneto weather entity."""
@@ -42,6 +58,9 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         self.comune_id = config_entry.data['comune_id']
         self.station_name = config_entry.data['station_name']
         self.station_id = config_entry.data['station_id']
+
+        self.expose_forecast_json = config_entry.options.get(CONF_EXPOSE_FORECAST_JSON)
+        self.expose_forecast_raw = config_entry.options.get(CONF_EXPOSE_FORECAST_RAW)
 
         self._attr_unique_id = f"weather.arpav_{self.comune_id}_{self.station_id}"
 
@@ -154,3 +173,33 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
 
         # return [f for f in forecasts if f.get('type') == 'daily']
         return result
+
+    @property
+    def extra_state_attributes(self):
+        """Return additional state attributes with nearest forecast summary and optionally forecast json."""
+
+        forecasts = self._forecasts()
+
+        # Find forecast with datetime closest to now
+        now = datetime.now()
+        nearest = min(forecasts, key=lambda forecast: abs(forecast["datetime"] - now))
+
+        def get_attr(entry, key):
+            return entry.get(key) or ""
+
+        payload = {
+            "forecast_today_description": get_attr(nearest, "weather_description"),
+            "forecast_today_precipitation": get_attr(nearest, "precipitation_description"),
+            "forecast_today_precipitation_probability": get_attr(nearest, "precipitation_probability"),
+            "forecast_today_reliability": get_attr(nearest, "forecast_reliability"),
+        }
+
+        if self.expose_forecast_json:
+            json_forecast = json.dumps(forecasts, indent=2, cls=DateTimeEncoder)
+            payload["forecast"] = json_forecast
+
+        if self.expose_forecast_raw:
+            raw_forecast = json.dumps(self.coordinator.data.get("forecast_raw", {}), indent=2)
+            payload["raw_forecast"] = raw_forecast
+
+        return payload

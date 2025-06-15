@@ -1,11 +1,15 @@
 """Sensors for Arpa Veneto Weather component."""
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
-from .const import DOMAIN, SENSOR_TYPES
+from .const import (
+    DOMAIN,
+    SENSOR_TYPES,
+    KEY_COORDINATOR
+)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up ARPA Veneto sensors from a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = hass.data[DOMAIN][config_entry.entry_id][KEY_COORDINATOR]
 
     sensors = [
         ArpaVenetoSensor(coordinator, config_entry, "temperature"),

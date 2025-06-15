@@ -2,7 +2,8 @@
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
-from .const import DOMAIN, API_BASE
+from homeassistant.core import callback
+from .const import CONF_EXPOSE_FORECAST_JSON, CONF_EXPOSE_FORECAST_RAW, DOMAIN, API_BASE
 
 
 async def fetch_zone_names():
@@ -55,6 +56,12 @@ class ArpaVenetoWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for ARPA Veneto Weather."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Implement OptionsFlow."""
+        return ArpaVenetoWeatherOptionsFlowHandler(config_entry)
 
     async def async_step_user(self, user_input=None):
         """Handle the first step: comune selection."""
@@ -146,19 +153,38 @@ class ArpaVenetoWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=schema,
         )
 
-    async def async_step_options(self, user_input=None):
-        """Handle the options step."""
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
+    """Reconfigure integration options.
 
-        options = self.config_entry.options
+    Available options are:
+        * update interval.
+        * enable internal forecast JSON attribute
+        * enable raw forecast JSON attribute
+    """
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Construct."""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="Configure options", data=user_input)
+
         return self.async_show_form(
-            step_id="options",
+            step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Required("update_interval", default=options.get("update_interval", 5)): vol.All(
-                        vol.Coerce(int), vol.Range(min=1, max=60)
-                    ),
+                    vol.Optional(
+                        CONF_EXPOSE_FORECAST_JSON,
+                        default=self.config_entry.options.get(
+                            CONF_EXPOSE_FORECAST_JSON) or False
+                    ): bool,
+                    vol.Optional(
+                        CONF_EXPOSE_FORECAST_RAW,
+                        default=self.config_entry.options.get(
+                            CONF_EXPOSE_FORECAST_RAW) or False
+                    ): bool,
                 }
             ),
         )
