@@ -34,12 +34,13 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch the latest data from the API."""
         _LOGGER.warning("Fetching data")
-        sensor_data = await fetch_station_data(self.station_id)
+        sensor_data, sensor_data_raw = await fetch_station_data(self.station_id)
         forecast_data, forecast_raw = await _fetch_forecast_data(self.zone_id)
         return {
             "forecast": forecast_data,
             "forecast_raw": forecast_raw,
             "sensors": sensor_data,  # Include sensor data like temperature
+            "sensors_raw": sensor_data_raw,
         }
 
 
@@ -51,36 +52,49 @@ async def fetch_station_data(station_id):
             raise UpdateFailed(f"Error fetching data: {response.status}")
         data = await response.json()
 
+    # Dictionary to store the max-time item per type
+    latest_by_type = {}
+
+    for item in data.get("data", []):
+        t = item["tipo"]
+        if t not in latest_by_type or item["dataora"] > latest_by_type[t]["dataora"]:
+            latest_by_type[t] = item
+
+    # Convert back to list
+    filtered_data = list(latest_by_type.values())
+
     extracted_data = {}
     # Extract temperature, humidity, and other data
-    for entry in data.get("data", []):
+    for entry in filtered_data:
         extracted_data["station_name"] = entry.get("nome_stazione")
-        if entry.get("tipo").startswith("TARIA"):
-            extracted_data["temperature"] = float(entry.get("valore"))
-        elif entry.get("tipo").startswith("UMID"):
-            extracted_data["humidity"] = int(entry.get("valore"))
-        elif entry.get("tipo") == "VISIB":
-            extracted_data["visibility"] = round(int(entry.get("valore")) / 1000, 2)
-        elif entry.get("tipo") == "PREC":
-            extracted_data["precipitation"] = float(entry.get("valore"))
-        elif entry.get("tipo").startswith("DVENTO"):
-            degrees = int(entry.get("valore"))
+        tipo = entry.get("tipo")
+        valore = entry.get("valore")
+        if tipo.startswith("TARIA"):
+            extracted_data["temperature"] = float(valore)
+        elif tipo.startswith("UMID"):
+            extracted_data["humidity"] = int(valore)
+        elif tipo == "VISIB":
+            extracted_data["visibility"] = round(int(valore) / 1000, 2)
+        elif tipo == "PREC":
+            extracted_data["precipitation"] = float(valore)
+        elif tipo.startswith("DVENTO"):
+            degrees = int(valore)
             extracted_data["native_wind_bearing"] = degrees
             extracted_data["wind_bearing"] = CARDINAL_DIRECTIONS[int((degrees + 11.25)/22.5)]
-        elif entry.get("tipo").startswith("VVENTO"):
-            extracted_data["wind_speed"] = round(float(entry.get("valore")) * 3.6, 2)
-        elif entry.get("tipo") == "RADSOL":
+        elif tipo.startswith("VVENTO"):
+            extracted_data["wind_speed"] = round(float(valore) * 3.6, 2)
+        elif tipo == "RADSOL":
             # Assuming UV Fraction = 6% => 0.06
             if (entry.get("unitnm") == "MJ/m2"):
                 # For MJ/m², the scaling factor is 40 because it includes cumulative energy and time
-                extracted_data["uv_index"] = round(float(entry.get("valore")) * 0.06 * 40)
+                extracted_data["uv_index"] = round(float(valore) * 0.06 * 40)
             elif (entry.get("unitnm") == "w/m2"):
                 # For W/m², the scaling factor is 0.04 because it represents instantaneous power
-                extracted_data["uv_index"] = round(float(entry.get("valore")) * 0.06 * 0.04)
+                extracted_data["uv_index"] = round(float(valore) * 0.06 * 0.04)
 
     extracted_data["last_update"] = datetime.now().isoformat()
 
-    return extracted_data
+    return extracted_data, filtered_data
 
 condition_lookup = {
     "pouring": ["b6.png", "b7.png", "b8.png", "b9.png", "b10.png"],

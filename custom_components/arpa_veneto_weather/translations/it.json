@@ -34,7 +34,8 @@
             "init": {
                 "data": {
                     "expose_forecast_json": "Esponi attributo JSON aggiuntivo per i dati interni di previsione",
-                    "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione"
+                    "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione",
+                    "expose_sensors_raw": "Esponi attributi aggiuntivi per i dati originali di sensore"
                 }
             }
         }

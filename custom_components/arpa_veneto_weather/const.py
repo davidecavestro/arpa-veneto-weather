@@ -9,6 +9,7 @@ API_BASE = "https://api.arpa.veneto.it/REST/v1"
 
 CONF_EXPOSE_FORECAST_JSON = "expose_forecast_json"
 CONF_EXPOSE_FORECAST_RAW = "expose_forecast_raw"
+CONF_EXPOSE_SENSORS_RAW = "expose_sensors_raw"
 
 SENSOR_TYPES = {
     "temperature": {

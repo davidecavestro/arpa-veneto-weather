@@ -3,7 +3,7 @@ import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-from .const import CONF_EXPOSE_FORECAST_JSON, CONF_EXPOSE_FORECAST_RAW, DOMAIN, API_BASE
+from .const import CONF_EXPOSE_FORECAST_JSON, CONF_EXPOSE_FORECAST_RAW, CONF_EXPOSE_SENSORS_RAW, DOMAIN, API_BASE
 
 
 async def fetch_zone_names():
@@ -184,6 +184,11 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                         CONF_EXPOSE_FORECAST_RAW,
                         default=self.config_entry.options.get(
                             CONF_EXPOSE_FORECAST_RAW) or False
+                    ): bool,
+                    vol.Optional(
+                        CONF_EXPOSE_SENSORS_RAW,
+                        default=self.config_entry.options.get(
+                            CONF_EXPOSE_SENSORS_RAW) or False
                     ): bool,
                 }
             ),

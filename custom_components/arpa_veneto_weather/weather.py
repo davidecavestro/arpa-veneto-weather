@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     CONF_EXPOSE_FORECAST_JSON,
     CONF_EXPOSE_FORECAST_RAW,
+    CONF_EXPOSE_SENSORS_RAW,
     DOMAIN,
     API_BASE,
     KEY_COORDINATOR
@@ -61,6 +62,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
 
         self.expose_forecast_json = config_entry.options.get(CONF_EXPOSE_FORECAST_JSON)
         self.expose_forecast_raw = config_entry.options.get(CONF_EXPOSE_FORECAST_RAW)
+        self.expose_sensors_raw = config_entry.options.get(CONF_EXPOSE_SENSORS_RAW)
 
         self._attr_unique_id = f"weather.arpav_{self.comune_id}_{self.station_id}"
 
@@ -201,5 +203,17 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         if self.expose_forecast_raw:
             raw_forecast = json.dumps(self.coordinator.data.get("forecast_raw", {}), indent=2)
             payload["raw_forecast"] = raw_forecast
+
+        if self.expose_sensors_raw:
+            sensors_raw = self.coordinator.data.get("sensors_raw", {})
+            payload["sensors_raw"] = sensors_raw
+            raw_data = {}
+            # Extract temperature, humidity, and other data
+            for entry in sensors_raw:
+                tipo = entry.get("tipo")
+                valore = entry.get("valore")
+                raw_data[tipo] = valore
+
+            payload.update({f"raw_{k}": v for k, v in raw_data.items()})
 
         return payload

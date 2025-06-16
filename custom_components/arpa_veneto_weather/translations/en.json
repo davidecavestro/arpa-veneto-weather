@@ -36,7 +36,8 @@
             "init": {
                 "data": {
                     "expose_forecast_json": "Expose JSON extra attribute for internal forecast data",
-                    "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data"
+                    "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data",
+                    "expose_sensors_raw": "Expose extra attributes for raw original sensor data"
                 }
             }
         }
