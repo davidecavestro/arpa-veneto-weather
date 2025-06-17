@@ -78,7 +78,9 @@ logger:
 
 In order to get the raw data for advanced stuff in HA, from the UI go to
 _Configuration > Integrations > Arpa Veneto Weather_.
+<br>
 Press the _CONFIGURE_ button on the integration entry.
+<br>
 Enable the option you need among:
 
 <dl>
