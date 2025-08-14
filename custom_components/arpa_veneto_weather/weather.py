@@ -112,6 +112,11 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         return self.coordinator.data["sensors"].get("uv_index")
 
     @property
+    def state(self):
+        """Return the state of the entity."""
+        return self.extra_state_attributes["condition"]
+
+    @property
     def supported_features(self) -> WeatherEntityFeature:
         """Determine supported features."""
         return WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_TWICE_DAILY
@@ -190,6 +195,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
             return entry.get(key) or ""
 
         payload = {
+            "condition": get_attr(nearest, "condition"),
             "forecast_today_description": get_attr(nearest, "weather_description"),
             "forecast_today_precipitation": get_attr(nearest, "precipitation_description"),
             "forecast_today_precipitation_probability": get_attr(nearest, "precipitation_probability"),
