@@ -63,16 +63,41 @@ To add Arpa Veneto Weather to your installation, do the following:
   If all goes well you should now have a new Weather entity with data from Arpav Forecast
 - **Please Note**: You can configure multiple instances of the Integration.
 
-## Enable Debug Logging
+## Compute the current sky condition
 
-If logs are needed for debugging or reporting an issue, use the following configuration.yaml:
+Since the stations don't provide data for current sky condition, the weather
+state has been historically left to _Unknown_.
+Since v0.5 the this integration optionally computes the current sky condition
+with a best-effor tapproach based on available sensors:
+<dl>
+<dt>
+day - sun above the horizon
+</dt>
+<dd>
+it compares the actual sunlight (Global Horizontal Irradiance) with the maximum expected
+for the current sun position, as its elevation over the horizon and the azimuth actually reflects 
+<i>the season</i>, the latitude and the time of the day.<br>
+Based on the realtime data available for <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo">solar radiation</a>.
+</dd>
+<dt>
+night - sun below the horizon
+</dt>
+<dd>
+it compares the actual sky brilliance with the masimum expected based on the moon phase.<br>
+Based on the realtime data available for <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza">sky brilliance</a>.
+</dd>
+</dl>
 
-```yaml
-logger:
-  default: error
-  logs:
-    custom_components.arpa-veneto-weather: debug
-```
+> [!WARNING]
+> This feature is still under test, so it is disabled by default.<br>
+In order to enable id, go to <i>Configuration > Integrations > Arpa Veneto Weather</i>.<br>
+Click on the gear on the station you are interested in.<br>
+Then choose <i>Compute the current condition: &gt; <b>From sensors</b></i>.
+
+> [!CAUTION]
+> Only the brave - chooose  <i>Compute the current condition: &gt <i>From sensors using custom thresholds</b></i> to set custom thresholds
+> for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i> during day and night. 
+
 
 ## Expose raw data
 
@@ -103,6 +128,17 @@ Expose extra attributes for raw original sensor data
 Raw data from the meteogram remote endpoint, exposed both as single attributes (prefixed with <i>raw_</i> leading to related value) plus the list of raw objects representing last available sensor observation, along with description, unit of measure, date/time.
 </dd>
 </dl>
+
+## Enable Debug Logging
+
+If logs are needed for debugging or reporting an issue, use the following configuration.yaml:
+
+```yaml
+logger:
+  default: error
+  logs:
+    custom_components.arpa-veneto-weather: debug
+```
 
 ## Disclaimer
 
