@@ -255,7 +255,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         nearest_station = find_nearest_location(data.get("data", []), lat, lon)
 
-        url = f"{API_BASE}/meteo_brillanza_tabella?codseqst=${nearest_station.get('codseqst')}"
+        url = f"{API_BASE}/meteo_brillanza_tabella?codseqst={nearest_station.get('codseqst')}"
         async with aiohttp.ClientSession() as session, session.get(url) as response:
             if response.status != 200:
                 raise UpdateFailed(f"Error fetching data: {response.status}")
