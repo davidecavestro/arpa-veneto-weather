@@ -1,4 +1,9 @@
 
+## [0.5.1] - 2025-09-01
+### :bug: Bug Fixes
+- [`2116408`](https://github.com/davidecavestro/arpa-veneto-weather/commit/211640846471236488f7d588d2c07179a5f38651) - sky status from sensors broken during night *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.5.0] - 2025-09-01
 ### :sparkles: New Features
 - [`7128e27`](https://github.com/davidecavestro/arpa-veneto-weather/commit/7128e2740ae0caf16c7e381344d05372028d3297) - compute current sky state from available sensors *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -100,3 +105,4 @@
 [0.3.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.2.7...0.3.0
 [0.4.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.3.0...0.4.0
 [0.5.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.4.0...0.5.0
+[0.5.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.0...0.5.1
