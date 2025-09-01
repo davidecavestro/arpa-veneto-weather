@@ -37,8 +37,26 @@
                 "data": {
                     "expose_forecast_json": "Expose JSON extra attribute for internal forecast data",
                     "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data",
-                    "expose_sensors_raw": "Expose extra attributes for raw original sensor data"
+                    "expose_sensors_raw": "Expose extra attributes for raw original sensor data",
+                    "infer_condition": "Compute the current condition"
                 }
+            },
+            "thresholds": {
+                "data": {
+                    "day_clear_threshold": "Daytime clear sky threshold (0 to 1)",
+                    "day_partly_threshold": "Daytime partly cloudy threshold (0 to 1)",
+                    "night_clear_threshold": "Nighttime clear sky threshold",
+                    "night_partly_threshold": "Nighttime partly cloudy threshold"
+                }
+            }
+        }
+    },
+    "selector": {
+        "infer_condition": {
+            "options": {
+                "infer_condition_from_sensors": "From sensors",
+                "infer_condition_from_sensors_with_custom_thresholds": "From sensors using custom thresholds",
+                "infer_condition_disabled": "Don't compute"
             }
         }
     },

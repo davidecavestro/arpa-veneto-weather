@@ -3,8 +3,26 @@ import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-from .const import CONF_EXPOSE_FORECAST_JSON, CONF_EXPOSE_FORECAST_RAW, CONF_EXPOSE_SENSORS_RAW, DOMAIN, API_BASE
-
+from homeassistant.helpers import selector
+from .const import (
+    DOMAIN,
+    API_BASE,
+    CONF_EXPOSE_FORECAST_JSON,
+    CONF_EXPOSE_FORECAST_RAW,
+    CONF_EXPOSE_SENSORS_RAW,
+    CONF_INFER_CONDITION,
+    CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS,
+    CONF_INFER_CONDITION_FROM_SENSORS,
+    CONF_INFER_CONDITION_DISABLED,
+    CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD,
+    CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD,
+    CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD,
+    CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD,
+    CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT,
+)
 
 async def fetch_zone_names():
     """Fetch human-readable names for each zonaid."""
@@ -49,7 +67,13 @@ async def fetch_stations():
         json_data = await response.json()
         # Access the "data" key which contains the list of stations
         data = json_data.get("data", [])
-        return {entry["codseqst"]: f"{entry['nome_stazione']} ({entry['provincia'].title()})" for entry in sorted(data, key=lambda x: x["nome_stazione"])}
+        sorted_stations = sorted(data, key=lambda x: x["nome_stazione"])
+        id_to_name = {
+            entry["codseqst"]: f"{entry['nome_stazione']} ({entry['provincia'].title()})" for entry in sorted_stations
+        }
+        stations = {item["codseqst"]: item for item in sorted_stations}
+
+        return id_to_name, stations
 
 
 class ArpaVenetoWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -61,7 +85,7 @@ class ArpaVenetoWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Implement OptionsFlow."""
-        return ArpaVenetoWeatherOptionsFlowHandler(config_entry)
+        return ArpaVenetoWeatherOptionsFlowHandler()
 
     async def async_step_user(self, user_input=None):
         """Handle the first step: comune selection."""
@@ -136,11 +160,13 @@ class ArpaVenetoWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "zone_name": self.selected_zone_name,
                     "station_id": self.selected_station_id,
                     "station_name": self.selected_station_name,
+                    "station_latitude": self.stations.get(self.selected_station_id).get("latitudine"),
+                    "station_longitude": self.stations.get(self.selected_station_id).get("longitudine"),
                 },
             )
 
         # Fetch all stations
-        self.station_id_to_name = await fetch_stations()
+        self.station_id_to_name, self.stations = await fetch_stations()
 
         schema = vol.Schema(
             {
@@ -162,13 +188,37 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
         * enable raw forecast JSON attribute
     """
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Construct."""
-        self.config_entry = config_entry
+    @property
+    def config_entry(self):
+        return self.hass.config_entries.async_get_entry(self.handler)
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
+
         if user_input is not None:
+            # store data in the flow instance
+            self._stored_data = dict(user_input)
+
+            if user_input.get(CONF_INFER_CONDITION) == CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
+                return await self.async_step_thresholds()
+
+            latitude = self.config_entry.data.get("station_latitude")
+            longitude = self.config_entry.data.get("station_longitude")
+            # backward compatibility: enrich existing config injecting coordinates if missing
+            if latitude is None or longitude is None:
+                # Fetch all stations
+                _, stations = await fetch_stations()
+                station_id = self.config_entry.data.get("station_id")
+                new_data = {**self.config_entry.data,
+                            "station_latitude": stations.get(station_id).get("latitudine"),
+                            "station_longitude": stations.get(station_id).get("longitudine")
+                            }
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry,
+                    data=new_data,
+                    options=self.config_entry.options,
+                )
+
             return self.async_create_entry(title="Configure options", data=user_input)
 
         return self.async_show_form(
@@ -190,6 +240,38 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                         default=self.config_entry.options.get(
                             CONF_EXPOSE_SENSORS_RAW) or False
                     ): bool,
+                    vol.Optional(
+                        CONF_INFER_CONDITION,
+                        default=self.config_entry.options.get(
+                            CONF_INFER_CONDITION) or CONF_INFER_CONDITION_DISABLED
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                CONF_INFER_CONDITION_FROM_SENSORS,
+                                CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS,
+                                CONF_INFER_CONDITION_DISABLED,
+                            ],
+                            mode=selector.SelectSelectorMode.LIST,
+                            translation_key=CONF_INFER_CONDITION
+                        ),
+                    )
                 }
             ),
+        )
+
+    async def async_step_thresholds(self, user_input=None):
+        if user_input is not None:
+            # Merge thresholds + step1 options
+            self._stored_data.update(user_input)
+            return self.async_create_entry(title="", data=self._stored_data)
+
+        conf = self.config_entry.options
+        return self.async_show_form(
+            step_id="thresholds",
+            data_schema=vol.Schema({
+                vol.Optional(CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD, CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT)): float,
+                vol.Optional(CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD, CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT)): float,
+                vol.Optional(CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD, CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT)): float,
+                vol.Optional(CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD, CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT)): float,
+            }),
         )

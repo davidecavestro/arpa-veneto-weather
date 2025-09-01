@@ -35,8 +35,26 @@
                 "data": {
                     "expose_forecast_json": "Esponi attributo JSON aggiuntivo per i dati interni di previsione",
                     "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione",
-                    "expose_sensors_raw": "Esponi attributi aggiuntivi per i dati originali di sensore"
+                    "expose_sensors_raw": "Esponi attributi aggiuntivi per i dati originali di sensore",
+                    "infer_condition": "Calcola la condizione attuale"
                 }
+            },
+            "thresholds": {
+                "data": {
+                    "day_clear_threshold": "Soglia cielo sereno diurno (0 a 1)",
+                    "day_partly_threshold": "Soglia parzialmente nuvoloso diurno (0 a 1)",
+                    "night_clear_threshold": "Soglia cielo sereno notturno",
+                    "night_partly_threshold": "Soglia parzialmente nuvoloso notturno"
+                }
+            }
+        }
+    },
+    "selector": {
+        "infer_condition": {
+            "options": {
+                "infer_condition_from_sensors": "Dai sensori disponibili",
+                "infer_condition_from_sensors_with_custom_thresholds": "Dai sensori usando soglie personalizzate",
+                "infer_condition_disabled": "Non calcolare"
             }
         }
     },
