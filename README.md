@@ -75,16 +75,19 @@ day - sun above the horizon
 </dt>
 <dd>
 it compares the actual sunlight (Global Horizontal Irradiance) with the maximum expected
-for the current sun position, as its elevation over the horizon and the azimuth actually reflects 
-<i>the season</i>, the latitude and the time of the day.<br>
+for the current sun position, as its elevation over the horizon and the azimuth actually reflects
+the <i>latitude</i>, the <i>season</i> and the <i>time</i> of the day.<br>
 Based on the realtime data available for <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo">solar radiation</a>.
+It also uses data such as <i>precipitation</i>, <i>wind speed</i> or <i>visibility</i> to make
+the best possible estimate of the actual sky conditions.
 </dd>
 <dt>
 night - sun below the horizon
 </dt>
 <dd>
-it compares the actual sky brilliance with the masimum expected based on the moon phase.<br>
-Based on the realtime data available for <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza">sky brilliance</a>.
+it compares the actual sky brilliance with the maximum expected, based on the moon phase.<br>
+Based on the realtime data available from the nearest station for the <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza">sky brilliance</a>:
+please note that this measure is usually not available from the chosen station.
 </dd>
 </dl>
 
@@ -96,7 +99,7 @@ Then choose <i>Compute the current condition: &gt; <b>From sensors</b></i>.
 
 > [!CAUTION]
 > Only the brave - chooose  <i>Compute the current condition: &gt <i>From sensors using custom thresholds</b></i> to set custom thresholds
-> for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i> during day and night. 
+> for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i> during day and night.
 
 
 ## Expose raw data
