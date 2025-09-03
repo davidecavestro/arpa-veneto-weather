@@ -11,17 +11,17 @@ from .const import (
     CONF_EXPOSE_FORECAST_RAW,
     CONF_EXPOSE_SENSORS_RAW,
     CONF_INFER_CONDITION,
-    CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS,
+    CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS as CUSTOM_THRESHOLDS,
     CONF_INFER_CONDITION_FROM_SENSORS,
     CONF_INFER_CONDITION_DISABLED,
-    CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD,
-    CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT,
-    CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD,
-    CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT,
-    CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD,
-    CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT,
-    CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD,
-    CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD as DAY_CLEAR_THRESHOLD,
+    CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT as DAY_CLEAR_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD as DAY_PARTLY_THRESHOLD,
+    CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT as DAY_PARTLY_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD as NIGHT_CLEAR_THRESHOLD,
+    CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT as NIGHT_CLEAR_THRESHOLD_DEFAULT,
+    CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD as NIGHT_PARTLY_THRESHOLD,
+    CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT as NIGHT_PARTLY_THRESHOLD_DEFAULT,
 )
 
 async def fetch_zone_names():
@@ -199,7 +199,7 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
             # store data in the flow instance
             self._stored_data = dict(user_input)
 
-            if user_input.get(CONF_INFER_CONDITION) == CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
+            if user_input.get(CONF_INFER_CONDITION) == CUSTOM_THRESHOLDS:
                 return await self.async_step_thresholds()
 
             latitude = self.config_entry.data.get("station_latitude")
@@ -248,7 +248,7 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                         selector.SelectSelectorConfig(
                             options=[
                                 CONF_INFER_CONDITION_FROM_SENSORS,
-                                CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS,
+                                CUSTOM_THRESHOLDS,
                                 CONF_INFER_CONDITION_DISABLED,
                             ],
                             mode=selector.SelectSelectorMode.LIST,
@@ -269,9 +269,30 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="thresholds",
             data_schema=vol.Schema({
-                vol.Optional(CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD, CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT)): float,
-                vol.Optional(CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD, CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT)): float,
-                vol.Optional(CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD, CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT)): float,
-                vol.Optional(CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD, default=conf.get(CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD, CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT)): float,
-            }),
+                vol.Optional(DAY_CLEAR_THRESHOLD,
+                             default=conf.get(DAY_CLEAR_THRESHOLD, DAY_CLEAR_THRESHOLD_DEFAULT)
+                             ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0, max=1, step=0.01, mode=selector.NumberSelectorMode.BOX)
+                ),
+                vol.Optional(DAY_PARTLY_THRESHOLD,
+                             default=conf.get(DAY_PARTLY_THRESHOLD, DAY_PARTLY_THRESHOLD_DEFAULT)
+                             ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0, max=1, step=0.01, mode=selector.NumberSelectorMode.BOX)
+                ),
+                vol.Optional(NIGHT_CLEAR_THRESHOLD,
+                             default=conf.get(NIGHT_CLEAR_THRESHOLD, NIGHT_CLEAR_THRESHOLD_DEFAULT)
+                             ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0, max=50, step=0.5, mode=selector.NumberSelectorMode.BOX)
+                ),
+                vol.Optional(NIGHT_PARTLY_THRESHOLD,
+                             default=conf.get(NIGHT_PARTLY_THRESHOLD,
+                                              NIGHT_PARTLY_THRESHOLD_DEFAULT)
+                             ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0, max=50, step=0.5, mode=selector.NumberSelectorMode.BOX)
+                )
+            })
         )
