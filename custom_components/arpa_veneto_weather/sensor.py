@@ -1,5 +1,6 @@
 """Sensors for Arpa Veneto Weather component."""
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 from .const import (
     DOMAIN,
@@ -14,8 +15,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     sensors = [
         ArpaVenetoSensor(coordinator, config_entry, "temperature"),
         ArpaVenetoSensor(coordinator, config_entry, "humidity"),
-        ArpaVenetoSensor(coordinator, config_entry, "visibility"),
         ArpaVenetoSensor(coordinator, config_entry, "precipitation"),
+        ArpaVenetoSensor(coordinator, config_entry, "visibility"),
         ArpaVenetoSensor(coordinator, config_entry, "wind_bearing"),
         ArpaVenetoSensor(coordinator, config_entry, "wind_speed"),
         ArpaVenetoSensor(coordinator, config_entry, "uv_index"),
@@ -29,6 +30,7 @@ class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)  # Initialize the CoordinatorEntity
         self.coordinator = coordinator
+        self._config_entry = config_entry
         self.station_id = config_entry.data.get("station_id")
         self.station_name = config_entry.data.get("station_name")
         self.sensor_type = sensor_type
@@ -40,6 +42,14 @@ class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):
         self._attr_has_entity_name = True
         self._attr_translation_key = sensor_type
         self._attr_translation_placeholders = {"station_name": self.station_name}
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._config_entry.entry_id)},
+            name="Arpa Veneto Weather",
+        )
 
     @property
     def state(self):

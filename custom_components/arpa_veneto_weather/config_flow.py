@@ -190,6 +190,7 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
 
     @property
     def config_entry(self):
+        """Return the config entry."""
         return self.hass.config_entries.async_get_entry(self.handler)
 
     async def async_step_init(self, user_input=None):
@@ -260,6 +261,7 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def async_step_thresholds(self, user_input=None):
+        """Manage the thresholds options."""
         if user_input is not None:
             # Merge thresholds + step1 options
             self._stored_data.update(user_input)

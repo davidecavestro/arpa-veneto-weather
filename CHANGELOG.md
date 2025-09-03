@@ -1,3 +1,8 @@
+## [0.5.2] - 2025-09-03
+### :wrench: Chores
+- [ 40a5d3 ](https://github.com/davidecavestro/arpa-veneto-weather/commit/40a5d3cf5cc8538664134488106f0947aa299fbb) - set custom thresholds with NumberSelector *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [ 4e9473 ](https://github.com/davidecavestro/arpa-veneto-weather/commit/4e9473f6b200c831d79fd7c6f9ab37a4df379e81) - use visibility to determine fog, wind for windy *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
 
 ## [0.5.1] - 2025-09-01
 ### :bug: Bug Fixes

@@ -5,8 +5,8 @@ from datetime import datetime
 import json
 
 from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.components.button import ButtonEntity
 
 
 from .const import (
@@ -40,8 +40,7 @@ async def async_get_current_conditions(session, station_id):
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up ARPA Veneto sensors from a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id][KEY_COORDINATOR]
-    async_add_entities([ArpaVenetoWeatherEntity(
-        coordinator, config_entry), ForceUpdateButton(coordinator)])
+    async_add_entities([ArpaVenetoWeatherEntity(coordinator, config_entry)])
 
 class DateTimeEncoder(json.JSONEncoder):
     """Encoder for datetime."""
@@ -58,6 +57,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     def __init__(self, coordinator, config_entry):
         """Init the entity with config data."""
         super().__init__(coordinator)  # Initialize the CoordinatorEntity
+        self._config_entry = config_entry
         self.comune_name = config_entry.data['comune_name']
         self.comune_id = config_entry.data['comune_id']
         self.station_name = config_entry.data['station_name']
@@ -78,6 +78,14 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
             "station_name": self.station_name,
         }
         self._attr_available = False  # Default to unavailable
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._config_entry.entry_id)},
+            name="Arpa Veneto Weather",
+        )
 
     @property
     def native_temperature(self):
@@ -227,12 +235,3 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
             payload.update({"ghi": self.coordinator.data["sensors"].get("ghi")})
 
         return payload
-
-class ForceUpdateButton(ButtonEntity):
-    def __init__(self, coordinator):
-        self._coordinator = coordinator
-        self._attr_name = "Force Update"
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_force_update"
-
-    async def async_press(self):
-        await self._coordinator.async_request_refresh()

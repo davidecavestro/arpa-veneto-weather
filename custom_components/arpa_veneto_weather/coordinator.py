@@ -13,7 +13,7 @@ from .thresholds import DayThresholds, NightThresholds
 from astral import LocationInfo
 from astral.sun import sun, elevation
 from astral.moon import phase
-from datetime import datetime, timezone
+from datetime import datetime
 from math import radians, cos, sin, asin, sqrt
 
 
@@ -22,8 +22,6 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed
 )
 
-
-from datetime import datetime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -160,16 +158,17 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         return datetime.strptime(dt_str + " +0100", "%Y-%m-%dT%H:%M:%S %z")
 
     async def classify_sky(self, lat, lon, dt, sensor_data, day_cfg: DayThresholds, night_cfg: NightThresholds):
-        """
-        Classifica lo stato del cielo basandosi su:
-        - Giorno: radiazione solare incidente (normalizzata all'altezza solare)
-        - Notte: brillanza del cielo (mag/arcsec²) corretta per fase della Luna
+        """Classifies the sky condition.
 
-        :param lat: latitudine (float)
-        :param lon: longitudine (float)
-        :param dt: datetime con tzinfo
-        :param sensor_data: sesor data containing "ghi" [W/m²]
-        :return: stringa ["clear", "partlycloudy", "cloudy", "unknown"]
+        Based on:
+        - Day: incident solar radiation (normalized to solar elevation)
+        - Night: sky brightness (mag/arcsec²) corrected for Moon phase
+
+        :param lat: latitude (float)
+        :param lon: longitude (float)
+        :param dt: datetime with tzinfo
+        :param sensor_data: sensor data containing "ghi" [W/m²]
+        :return: string ["clear", "partlycloudy", "cloudy", "unknown"]
         """
 
         temperature = sensor_data.get("temperature")
@@ -254,9 +253,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 return "cloudy"
 
     async def get_night_sky_brightness(self, lat, lon):
-        """
-        Approximate night sky brightness (mag/arcsec²) based on location.
-        """
+        """Approximate night sky brightness (mag/arcsec²) based on location."""
+
         url = f"{API_BASE}/meteo_meteogrammi?rete=MGRAMMIBRI&coordcd=20067&orario=0"
         async with aiohttp.ClientSession() as session, session.get(url) as response:
             if response.status != 200:
@@ -275,7 +273,6 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         for item in data.get("data", []):
             if item["dataora"] > latest.get("dataora", ""):
                 latest = item
-                dataora = item["dataora"]
 
         sky_brightness = latest.get("valore")
 
@@ -283,12 +280,14 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
 
 def find_nearest_location(locations, target_lat, target_lon):
+    """Find the nearest location from a list based on latitude and longitude."""
     return min(
         locations,
         key=lambda x: haversine(x['latitudine'], x['longitudine'], target_lat, target_lon)
     )
 
 def haversine(lat1, lon1, lat2, lon2):
+    """Calculate the distance in kilometers between two points."""
     # Convert coordinates to radians
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
 
@@ -302,16 +301,16 @@ def haversine(lat1, lon1, lat2, lon2):
     return c * r
 
 def mj_to_wm2(mj_per_m2, seconds=3600):
-    """
-    Convert MJ/m² per interval to W/m² (mean irradiance).
+    """Convert MJ/m² per interval to W/m² (mean irradiance).
+
     Default assumes an hourly interval.
     """
     return (mj_per_m2 * 1e6) / seconds
 
 
 def moon_illumination(dt):
-    """
-    Approximate Moon illumination (0–100%)
+    """Approximate Moon illumination (0–100%).
+
     dt: datetime
     """
     p = phase(dt)  # 0=new, 14=full
