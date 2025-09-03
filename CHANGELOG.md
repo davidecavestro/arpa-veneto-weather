@@ -1,3 +1,8 @@
+## [0.5.3] - 2025-09-03
+### :wrench: Chores
+- [`5ca9a97`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5ca9a971b81c7b1eee5b9641c57d5b948ec080e9) - add device *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.5.2] - 2025-09-03
 ### :wrench: Chores
 - [ 40a5d3 ](https://github.com/davidecavestro/arpa-veneto-weather/commit/40a5d3cf5cc8538664134488106f0947aa299fbb) - set custom thresholds with NumberSelector *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -111,3 +116,4 @@
 [0.4.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.3.0...0.4.0
 [0.5.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.4.0...0.5.0
 [0.5.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.0...0.5.1
+[0.5.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.2...0.5.3
