@@ -176,6 +176,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         humidity = sensor_data.get("humidity")
         wind_speed = sensor_data.get("wind_speed")
         precipitation = sensor_data.get("precipitation")
+        visibility = sensor_data.get("visibility")
 
         ghi = sensor_data.get("ghi")
 
@@ -189,38 +190,45 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 return "pouring"
             return "rainy"
 
-        # Fog (humid, calm, above freezing)
-        if humidity and humidity > 99 and (wind_speed is None or wind_speed < 1) and (temperature is None or temperature > 0):
-            return "fog"
+        # Visibility overrides wind and
+        if visibility is not None:
+            if visibility < 1:
+                return "fog"
+            if visibility < 2 and humidity > 99:
+                return "fog"
+
+        if wind_speed and wind_speed > 30:
+            return "windy"
 
         city = LocationInfo(latitude=lat, longitude=lon)
         s = sun(city.observer, date=dt.date(), tzinfo=dt.tzinfo)
 
-        # Giorno o notte?
         is_day = s["sunrise"] <= dt <= s["sunset"]
 
         if is_day:
             if ghi is None:
                 return "unknown"
 
-            # Altezza del Sole in gradi
+            # Sun elevation in degrees
             h_sun = elevation(city.observer, dt)
 
             if h_sun <= 0:
-                return "unknown"  # Sole sotto l'orizzonte (transizioni)
+                return "unknown"  # Sun below horizon (transitions)
 
-            # Irradianza teorica massima (approssimata)
+            # Theoretical maximum irradiance (approximated)
             ghi_clear = 1000 * sin(radians(h_sun))
 
-            # Normalizzazione
+            # Normalization
             ghi_ratio = ghi / ghi_clear if ghi_clear > 0 else 0
 
-            # Soglie empiriche (da tarare sui dati ARPA)
+            # Empirical thresholds (to be calibrated on ARPA data)
             if ghi_ratio > day_cfg.clear:
                 return "sunny"
             elif ghi_ratio > day_cfg.partly_cloudy:
                 return "partlycloudy"
             else:
+                if wind_speed and wind_speed > 30:
+                    return "windy-variant"
                 return "cloudy"
 
         else:
@@ -241,6 +249,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             elif sky_brightness + offset > night_cfg.partly_cloudy:
                 return "partlycloudy"
             else:
+                if wind_speed and wind_speed > 30:
+                    return "windy-variant"
                 return "cloudy"
 
     async def get_night_sky_brightness(self, lat, lon):
