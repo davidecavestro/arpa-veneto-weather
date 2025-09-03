@@ -98,7 +98,7 @@ Click on the gear on the station you are interested in.<br>
 Then choose <i>Compute the current condition: &gt; <b>From sensors</b></i>.
 
 > [!CAUTION]
-> Only the brave - chooose  <i>Compute the current condition: &gt <i>From sensors using custom thresholds</b></i> to set custom thresholds
+> Only the brave - chooose  <i>Compute the current condition</i>: <i>From sensors using custom thresholds</b></i> to set custom thresholds
 > for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i> during day and night.
 
 
