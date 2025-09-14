@@ -151,9 +151,6 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _local_dt(self, dt_str):
         """Convert a datetime string to a localized datetime object."""
-        # tz = await self.hass.async_add_executor_job(pytz.timezone, 'Europe/Rome')
-        # dt = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S")
-        # return tz.localize(dt)
 
         return datetime.strptime(dt_str + " +0100", "%Y-%m-%dT%H:%M:%S %z")
 
@@ -167,7 +164,9 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         :param lat: latitude (float)
         :param lon: longitude (float)
         :param dt: datetime with tzinfo
-        :param sensor_data: sensor data containing "ghi" [W/m²]
+        :param sensor_data: sensor data containing "ghi" [W/m²], temperature [°C], humidity [%], wind_speed [km/h], precipitation [mm], visibility [km]
+        :param day_cfg: the day thresholds configuration
+        :param night_cfg: the night thresholds configuration
         :return: string ["clear", "partlycloudy", "cloudy", "unknown"]
         """
 
@@ -180,20 +179,21 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         ghi = sensor_data.get("ghi")
 
         # Precipitation overrides everything
-        if precipitation > 0:
-            if temperature <= 5:
-                return "snow"
-            elif temperature <= 0:
-                return "snowy-rainy"
-            if precipitation > 20:
-                return "pouring"
+        if precipitation is not None and precipitation > 0:
+            if temperature is not None:
+                if temperature <= 5:
+                    return "snow"
+                elif temperature <= 0:
+                    return "snowy-rainy"
+                if precipitation > 20:
+                    return "pouring"
             return "rainy"
 
-        # Visibility overrides wind and
+        # Visibility overrides wind
         if visibility is not None:
             if visibility < 1:
                 return "fog"
-            if visibility < 2 and humidity > 99:
+            if visibility < 2 and humidity and humidity > 99:
                 return "fog"
 
         if wind_speed and wind_speed > 30:
