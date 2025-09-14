@@ -1,3 +1,11 @@
+## [0.5.4] - 2025-09-14
+### :bug: Bug Fixes
+- [`f753a38`](https://github.com/davidecavestro/arpa-veneto-weather/commit/f753a38718cfdf9c6a05e97f59fc740efca0d3f8) - possible NPW on condition detection for missing data *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`accb82a`](https://github.com/davidecavestro/arpa-veneto-weather/commit/accb82aacbc5637a380e028158b08039b742f70e) - bump up HA version on requirements and switch to Trixie for dev *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.5.3] - 2025-09-03
 ### :wrench: Chores
 - [`5ca9a97`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5ca9a971b81c7b1eee5b9641c57d5b948ec080e9) - add device *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -117,3 +125,4 @@
 [0.5.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.4.0...0.5.0
 [0.5.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.0...0.5.1
 [0.5.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.2...0.5.3
+[0.5.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.3...0.5.4
