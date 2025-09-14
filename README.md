@@ -62,12 +62,21 @@ To add Arpa Veneto Weather to your installation, do the following:
   If all goes well you should now have a new Weather entity with data from Arpav Forecast
 - **Please Note**: You can configure multiple instances of the Integration.
 
-## Compute the current sky condition
+### Preferences
+
+Once you have configured a station, you can control some options from ⚙ (its _Configure_ action):
+
+- **Expose JSON extra attribute for internal forecast data**: Expose additional attributes on the weather entity used internally for forecasts
+- **Expose JSON extra attribute for raw original forecast data**: Expose additional attributes on the weather entity based on the data obtained from the remote api call
+- **Expose extra attributes for raw original sensor data**: Expose as sensors the data obtaining from the remote api call
+- **Compute the current condition**: Expose the weather state as computed from available metrics
+
+## Compute the current weather condition
 
 Since the stations don't provide data for current sky condition, the weather
 state has been historically left to _Unknown_.
-Since v0.5 the this integration optionally computes the current sky condition
-with a best-effor tapproach based on available sensors:
+Since v0.5 this integration optionally computes the current sky condition
+with a best-effort approach based on available sensors:
 <dl>
 <dt>
 day - sun above the horizon
@@ -76,29 +85,31 @@ day - sun above the horizon
 it compares the actual sunlight (Global Horizontal Irradiance) with the maximum expected
 for the current sun position, as its elevation over the horizon and the azimuth actually reflects
 the <i>latitude</i>, the <i>season</i> and the <i>time</i> of the day.<br>
-Based on the realtime data available for <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo">solar radiation</a>.
-It also uses data such as <i>precipitation</i>, <i>wind speed</i> or <i>visibility</i> to make
+Based on the nearest realtime data available for <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo">solar radiation</a>.
+It also uses data such as <i>precipitation</i>, <i>wind speed</i> and <i>visibility</i> to make
 the best possible estimate of the actual sky conditions.
 </dd>
 <dt>
 night - sun below the horizon
 </dt>
 <dd>
-it compares the actual sky brilliance with the maximum expected, based on the moon phase.<br>
-Based on the realtime data available from the nearest station for the <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza">sky brilliance</a>:
-please note that this measure is usually not available from the chosen station.
+it compares the actual night sky brightness with the maximum expected, based on the moon phase.<br>
+Based on the realtime data available from the nearest station for the <a href="https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza">night sky brightness</a>:
+please note that this measure is not typically supplied directly by the chosen station, so we have to fallback to the nearest station providing this data.
 </dd>
 </dl>
 
-> [!WARNING]
-> This feature is still under test, so it is disabled by default.<br>
-In order to enable id, go to <i>Configuration > Integrations > Arpa Veneto Weather</i>.<br>
+> [!NOTE]
+This feature is still under test, so it is disabled by default.<br>
+In order to enable it, go to <i>Configuration > Integrations > Arpa Veneto Weather</i>.<br>
 Click on the gear on the station you are interested in.<br>
 Then choose <i>Compute the current condition: &gt; <b>From sensors</b></i>.
 
-> [!CAUTION]
-> Only the brave - chooose  <i>Compute the current condition</i>: <i>From sensors using custom thresholds</b></i> to set custom thresholds
-> for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i> during day and night.
+> [!TIP]
+Only the brave - choose  <i>Compute the current condition</i>: <i>From sensors
+using custom thresholds</b></i> to set custom thresholds
+for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i>
+during day and night.
 
 
 ## Expose raw data
