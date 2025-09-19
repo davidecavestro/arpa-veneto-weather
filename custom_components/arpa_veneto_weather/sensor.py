@@ -12,15 +12,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up ARPA Veneto sensors from a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id][KEY_COORDINATOR]
 
-    sensors = [
-        ArpaVenetoSensor(coordinator, config_entry, "temperature"),
-        ArpaVenetoSensor(coordinator, config_entry, "humidity"),
-        ArpaVenetoSensor(coordinator, config_entry, "precipitation"),
-        ArpaVenetoSensor(coordinator, config_entry, "visibility"),
-        ArpaVenetoSensor(coordinator, config_entry, "wind_bearing"),
-        ArpaVenetoSensor(coordinator, config_entry, "wind_speed"),
-        ArpaVenetoSensor(coordinator, config_entry, "uv_index"),
-    ]
+    # create a sensor for each sensor type in SENSOR_TYPES
+    sensors = []
+    for sensor_type in SENSOR_TYPES:
+        sensors.append(ArpaVenetoSensor(coordinator, config_entry, sensor_type))
     async_add_entities(sensors)
 
 class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):

@@ -13,7 +13,7 @@ from .thresholds import DayThresholds, NightThresholds
 from astral import LocationInfo
 from astral.sun import sun, elevation
 from astral.moon import phase
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from math import radians, cos, sin, asin, sqrt
 
 
@@ -93,9 +93,14 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         # Dictionary to store the max-time item per type
         latest_by_type = {}
+        precipitation_data = []
 
         for item in data.get("data", []):
             t = item["tipo"]
+            # Collect all precipitation data points
+            if t == "PREC":
+                precipitation_data.append(item)
+            # Keep only the latest item per type
             if t not in latest_by_type or item["dataora"] > latest_by_type[t]["dataora"]:
                 latest_by_type[t] = item
                 dataora = item["dataora"]
@@ -137,6 +142,51 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                     # For W/m², the scaling factor is 0.04 because it represents instantaneous power
                     extracted_data["uv_index"] = round(float(valore) * 0.06 * 0.04)
                     extracted_data["ghi"] = round(float(valore))
+
+        # prepare additional precipitation metrics
+        # given that
+        # - the original data point is the cumulated precipitation over 5 minutes
+        # - "dataora" is a timestamp based on +0100 tz offset
+        #
+        # get current prec from last data point, then convert it from mm every 5 minutes to mm/h
+        # cumulate for the last hour
+        # cumulate today (from midnight)
+        if precipitation_data:
+            precipitation_data.sort(key=lambda x: x["dataora"], reverse=True)
+            latest_prec = float(precipitation_data[0]["valore"])
+            precipitation_hourly = round(latest_prec * 12, 2)  # mm/h for latest data point
+            # cumulative 1h and 24h, but lokking at the dataora timestamp, not just counting 12 or 288 points
+            # this is to handle possible missing data points
+
+            now = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=1)))
+            one_hour_ago = now - timedelta(hours=1)
+
+            precipitation_cumulative_1h = _cumulate_since(precipitation_data, one_hour_ago)
+
+            precipitation_cumulative_24h = _cumulate_since(
+                precipitation_data, now - timedelta(hours=24))
+
+            # let's also add cumulative 3h, 6h and 12h
+            precipitation_cumulative_3h = _cumulate_since(
+                precipitation_data, now - timedelta(hours=3))
+
+            precipitation_cumulative_6h = _cumulate_since(
+                precipitation_data, now - timedelta(hours=6))
+            precipitation_cumulative_12h = _cumulate_since(
+                precipitation_data, now - timedelta(hours=12))
+
+            # cumulative today (from midnight)
+            midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            precipitation_cumulative_today = _cumulate_since(precipitation_data, midnight)
+
+            # Add these computed metrics to the extracted_data dictionary
+            extracted_data["precipitation_hourly"] = precipitation_hourly
+            extracted_data["precipitation_cumulative_today"] = precipitation_cumulative_today
+            extracted_data["precipitation_cumulative_1h"] = precipitation_cumulative_1h
+            extracted_data["precipitation_cumulative_3h"] = precipitation_cumulative_3h
+            extracted_data["precipitation_cumulative_6h"] = precipitation_cumulative_6h
+            extracted_data["precipitation_cumulative_12h"] = precipitation_cumulative_12h
+            extracted_data["precipitation_cumulative_24h"] = precipitation_cumulative_24h
 
         extracted_data["last_update"] = datetime.now().isoformat()
         extracted_data["dt"] = dataora
@@ -447,3 +497,10 @@ def _assemble_forecast_dict(entry):
     props_dict = static_props | temperature_dict | daytime_dict
 
     return props_dict
+
+def _cumulate_since(precipitation_data, since):
+
+    # Convert naive datetime to timezone-aware on +0100
+    # then sum up recent entries newer than "since" limit
+    return round(sum(float(p["valore"]) for p in precipitation_data
+                     if datetime.strptime(p["dataora"] + " +0100", "%Y-%m-%dT%H:%M:%S %z").replace(tzinfo=timezone(timedelta(hours=1))) >= since), 2)

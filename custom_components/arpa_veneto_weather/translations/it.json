@@ -70,7 +70,28 @@
                 "name": "Visibilità a {station_name}"
             },
             "precipitation": {
-                "name": "Precipitazioni a {station_name}"
+                "name": "Precipitazioni ultimi 5 minuti  a {station_name}"
+            },
+            "precipitation_hourly": {
+                "name": "Intensità precipitazioni a {station_name}"
+            },
+            "precipitation_cumulative_today": {
+                "name": "Precipitazioni cumulative oggi a {station_name}"
+            },
+            "precipitation_cumulative_1h": {
+                "name": "Precipitazioni cumulative ultime 1h a {station_name}"
+            },
+            "precipitation_cumulative_3h": {
+                "name": "Precipitazioni cumulative ultime 3h a {station_name}"
+            },
+            "precipitation_cumulative_6h": {
+                "name": "Precipitazioni cumulative ultime 6h a {station_name}"
+            },
+            "precipitation_cumulative_12h": {
+                "name": "Precipitazioni cumulative ultime 12h a {station_name}"
+            },
+            "precipitation_cumulative_24h": {
+                "name": "Precipitazioni cumulative ultime 24h a {station_name}"
             },
             "wind_bearing": {
                 "name": "Direzione vento a {station_name}"
