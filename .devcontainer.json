@@ -1,7 +1,8 @@
 {
     "name": "ludeeus/integration_blueprint",
     "image": "mcr.microsoft.com/vscode/devcontainers/python:3.13-trixie",
-    "postCreateCommand": "scripts/setup",
+    "postCreateCommand": "wget -qO- https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_amd64 | sudo tee /bin/go2rtc >/dev/null && sudo chmod +x /bin/go2rtc && scripts/setup",
+    "postStartCommand": "go2rtc --version",
     "forwardPorts": [
         8123
     ],
@@ -33,6 +34,9 @@
     },
     "remoteUser": "vscode",
     "features": {
-        "ghcr.io/devcontainers/features/rust:1": {}
+        "ghcr.io/devcontainers/features/rust:1": {},
+        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+            "packages": "ffmpeg pcaputils libturbojpeg0"
+        },
     }
 }

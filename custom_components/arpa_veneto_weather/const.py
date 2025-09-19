@@ -42,14 +42,49 @@ SENSOR_TYPES = {
         "device_class": "visibility",
     },
     "precipitation": {
-        "name": "Precipitation",
-        "unit": "mm",
+        "name": "Precipitation in 5 minutes",
+        "unit": "mm/5min",
         "device_class": "precipitation",
     },
     "precipitation_probability": {
         "name": "Precipitation probability",
         "unit": "%",
         "device_class": "probability",
+    },
+    "precipitation_hourly": {
+        "name": "Precipitation intensity (mm/h)",
+        "unit": "mm/h",
+        "device_class": "precipitation",
+    },
+    "precipitation_cumulative_1h": {
+        "name": "Precipitation cumulative 1h",
+        "unit": "mm",
+        "device_class": "precipitation",
+    },
+    "precipitation_cumulative_3h": {
+        "name": "Precipitation cumulative 3h",
+        "unit": "mm",
+        "device_class": "precipitation",
+    },
+    "precipitation_cumulative_6h": {
+        "name": "Precipitation cumulative 6h",
+        "unit": "mm",
+        "device_class": "precipitation",
+    },
+    "precipitation_cumulative_12h": {
+        "name": "Precipitation cumulative 12h",
+        "unit": "mm",
+        "device_class": "precipitation",
+    },
+    "precipitation_cumulative_24h": {
+        "name": "Precipitation cumulative 24h",
+        "unit": "mm",
+        "device_class": "precipitation",
+    },
+    "precipitation_cumulative_today": {
+        "name": "Precipitation cumulative today",
+        "unit": "mm",
+        "device_class": "precipitation",
     },
     "wind_bearing": {
         "name": "Wind bearing",
