@@ -1,3 +1,13 @@
+## [0.6.0] - 2025-09-19
+### :sparkles: New Features
+- [`fafb4dc`](https://github.com/davidecavestro/arpa-veneto-weather/commit/fafb4dc97e2860a3dc43f0064608be73c0159bfc) - expose cumulative precipitation plus hourly intensity *(PR [#8](https://github.com/davidecavestro/arpa-veneto-weather/pull/8) by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`f405c99`](https://github.com/davidecavestro/arpa-veneto-weather/commit/f405c997e2e12c692c37cac4ed4408af94c7fe30) - beef up docs *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`e9704e5`](https://github.com/davidecavestro/arpa-veneto-weather/commit/e9704e5adedfae8e051bbb08726abd608e0a5dd9) - add missing deps to devcontainer *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`cfda9c9`](https://github.com/davidecavestro/arpa-veneto-weather/commit/cfda9c91e0719889ca3dddaf19bde42a313e0064) - use python 3.13 for linting *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.5.4] - 2025-09-14
 ### :bug: Bug Fixes
 - [`f753a38`](https://github.com/davidecavestro/arpa-veneto-weather/commit/f753a38718cfdf9c6a05e97f59fc740efca0d3f8) - possible NPW on condition detection for missing data *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -126,3 +136,4 @@
 [0.5.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.0...0.5.1
 [0.5.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.2...0.5.3
 [0.5.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.3...0.5.4
+[0.6.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.4...0.6.0
