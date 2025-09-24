@@ -421,7 +421,7 @@ def _parse_precipitation_prob(prob):
     """Strip the suffix from  a probability text."""
     if prob == "":
         return None
-    return re.sub('%$', '', prob)
+    return int(re.sub('%$', '', prob))
 
 
 def _get_forecast_type(intervallo):
