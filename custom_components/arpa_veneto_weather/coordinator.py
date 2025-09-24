@@ -1,6 +1,7 @@
 """Coordinator for consuming REST api endpoints on Arpa Veneto Weather component."""
 import logging
 import re
+import zoneinfo
 
 import aiohttp
 from . import const
@@ -178,7 +179,10 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 precipitation_data, now - timedelta(hours=12))
 
             # cumulative today (from midnight)
-            midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            # Europe/Rome midnight
+            midnight = datetime.now().astimezone(zoneinfo.ZoneInfo("Europe/Rome"))
+            midnight = midnight.replace(hour=0, minute=0, second=0, microsecond=0)
+
             precipitation_cumulative_today = _cumulate_since(precipitation_data, midnight)
 
             # Add these computed metrics to the extracted_data dictionary
