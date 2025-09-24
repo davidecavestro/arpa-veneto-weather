@@ -95,6 +95,9 @@
             "precipitation_cumulative_24h": {
                 "name": "Cumulative precipitation last 24 hours in {station_name}"
             },
+            "pressure": {
+                "name": "Pressure in {station_name}"
+            },
             "wind_bearing": {
                 "name": "Wind bearing in {station_name}"
             },

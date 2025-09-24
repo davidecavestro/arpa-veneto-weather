@@ -86,6 +86,11 @@ SENSOR_TYPES = {
         "unit": "mm",
         "device_class": "precipitation",
     },
+    "pressure": {
+        "name": "Pressure",
+        "unit": "hPa",
+        "device_class": "pressure",
+    },
     "wind_bearing": {
         "name": "Wind bearing",
         "device_class": "direction",

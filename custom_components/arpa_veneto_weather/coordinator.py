@@ -124,6 +124,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 extracted_data["humidity"] = int(valore)
             elif tipo == "VISIB":
                 extracted_data["visibility"] = round(int(valore) / 1000, 2)
+            elif tipo == "PRESS":
+                extracted_data["pressure"] = float(valore)
             elif tipo == "PREC":
                 extracted_data["precipitation"] = float(valore)
             elif tipo.startswith("DVENTO"):

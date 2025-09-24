@@ -123,6 +123,11 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         return self.coordinator.data["sensors"].get("uv_index")
 
     @property
+    def native_pressure(self) -> float | None:
+        """Return the pressure from the coordinator data."""
+        return self.coordinator.data["sensors"].get("pressure")
+
+    @property
     def state(self):
         """Return the state of the entity."""
 

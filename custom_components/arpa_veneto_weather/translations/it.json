@@ -93,6 +93,9 @@
             "precipitation_cumulative_24h": {
                 "name": "Precipitazioni cumulative ultime 24h a {station_name}"
             },
+            "pressure": {
+                "name": "Pressionre a {station_name}"
+            },
             "wind_bearing": {
                 "name": "Direzione vento a {station_name}"
             },
