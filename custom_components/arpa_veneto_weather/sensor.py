@@ -1,5 +1,6 @@
 """Sensors for Arpa Veneto Weather component."""
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 from .const import (
@@ -44,6 +45,7 @@ class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):
         return DeviceInfo(
             identifiers={(DOMAIN, self._config_entry.entry_id)},
             name="Arpa Veneto Weather",
+            entry_type=DeviceEntryType.SERVICE
         )
 
     @property

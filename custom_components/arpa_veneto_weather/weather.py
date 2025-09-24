@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 
 from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
+from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -85,6 +86,7 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         return DeviceInfo(
             identifiers={(DOMAIN, self._config_entry.entry_id)},
             name="Arpa Veneto Weather",
+            entry_type=DeviceEntryType.SERVICE
         )
 
     @property
