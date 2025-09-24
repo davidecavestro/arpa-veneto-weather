@@ -1,3 +1,13 @@
+## [0.7.0] - 2025-09-24
+### :sparkles: New Features
+- [`5ba99ec`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5ba99ec9e983f1bf38ce4392fd1f64d6ad4793a0) - add pressure sensor *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :bug: Bug Fixes
+- [`e1e892e`](https://github.com/davidecavestro/arpa-veneto-weather/commit/e1e892e20d2fc1b036248a63b438e832832e0697) - force precipitation probability to int *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`c0cbb29`](https://github.com/davidecavestro/arpa-veneto-weather/commit/c0cbb294ec53dc9dbf8add5ac0eef7622c180ee3) - change device info to service *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`4892ef4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/4892ef4dba9782598ed0975245ed956fb9948508) - use Rome timezone to compute precipitations since midnight (see #8)  *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.6.0] - 2025-09-19
 ### :sparkles: New Features
 - [`fafb4dc`](https://github.com/davidecavestro/arpa-veneto-weather/commit/fafb4dc97e2860a3dc43f0064608be73c0159bfc) - expose cumulative precipitation plus hourly intensity *(PR [#8](https://github.com/davidecavestro/arpa-veneto-weather/pull/8) by [@davidecavestro](https://github.com/davidecavestro))*
