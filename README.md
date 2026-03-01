@@ -70,6 +70,7 @@ Once you have configured a station, you can control some options from ⚙ (its _
 - **Expose JSON extra attribute for raw original forecast data**: Expose additional attributes on the weather entity based on the data obtained from the remote api call
 - **Expose extra attributes for raw original sensor data**: Expose as sensors the data obtaining from the remote api call
 - **Compute the current condition**: Expose the weather state as computed from available metrics
+- **Choose stations providing air-quality data**: Since the set of [stations differs](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/aria/qualita-aria-dati-in-diretta) between PM10, PM2.5 and Ozone, the user can choose a specific station for each of them. 
 
 ## Compute the current weather condition
 
