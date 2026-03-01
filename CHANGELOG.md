@@ -1,3 +1,8 @@
+## [0.8.0] - 2026-03-01
+### :sparkles: New Features
+- [`e1b6082`](https://github.com/davidecavestro/arpa-veneto-weather/commit/e1b6082d22979a25afecd7270d7dbd12a11687b0) - expose PM10, PM2.5 and Ozone sensors as per [#10](https://github.com/davidecavestro/arpa-veneto-weather/pull/10) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.7.0] - 2025-09-24
 ### :sparkles: New Features
 - [`5ba99ec`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5ba99ec9e983f1bf38ce4392fd1f64d6ad4793a0) - add pressure sensor *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -147,3 +152,4 @@
 [0.5.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.2...0.5.3
 [0.5.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.3...0.5.4
 [0.6.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.4...0.6.0
+[0.8.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.7.0...0.8.0
