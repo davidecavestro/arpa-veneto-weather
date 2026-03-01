@@ -24,6 +24,10 @@ CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT = 20.5
 CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD = "night_partly_threshold"
 CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT = 18.5
 
+CONF_AIR_QUALITY = "air_quality"
+CONF_PM10_STATION = "pm10_station"
+CONF_PM25_STATION = "pm25_station"
+CONF_OZONE_STATION = "ozone_station"
 
 SENSOR_TYPES = {
     "temperature": {
@@ -104,6 +108,21 @@ SENSOR_TYPES = {
         "name": "UV index",
         "unit": "UV index",
         "device_class": "uv_index",
+    },
+    "pm10": {
+        "name": "PM10",
+        "unit": "µg/m³",
+        "device_class": "pm10",
+    },
+    "pm25": {
+        "name": "PM2.5",
+        "unit": "µg/m³",
+        "device_class": "pm25",
+    },
+    "ozone": {
+        "name": "Ozone",
+        "unit": "µg/m³ 293K",
+        "device_class": "ozone",
     },
 }
 

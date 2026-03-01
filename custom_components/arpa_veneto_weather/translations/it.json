@@ -32,6 +32,22 @@
     "options": {
         "step": {
             "init": {
+                "sections": {
+                    "air_quality": {
+                        "name": "Sensori qualità aria",
+                        "description": "Seleziona le stazioni da usare per i dati di qualità dell'aria. Se non vuoi avere questi dati, lascia semplicemente queste opzioni non selezionate.",
+                        "data": {
+                            "pm10_station": "PM10",
+                            "pm25_station": "PM2.5",
+                            "ozone_station": "Ozono"
+                        },
+                        "data_description": {
+                            "pm10_station": "Seleziona una stazione per le misurazioni di PM10",
+                            "pm25_station": "Seleziona una stazione per le misurazioni di PM2.5",
+                            "ozone_station": "Seleziona una stazione per le misurazioni di ozono"
+                        }
+                    }
+                },
                 "data": {
                     "expose_forecast_json": "Esponi attributo JSON aggiuntivo per i dati interni di previsione",
                     "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione",

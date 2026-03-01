@@ -36,6 +36,10 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         self.latitude = config_entry.data.get("station_latitude")
         self.longitude = config_entry.data.get("station_longitude")
         self.infer_condition = config_entry.options.get(const.CONF_INFER_CONDITION)
+        air_quality = config_entry.options.get(const.CONF_AIR_QUALITY)
+        self.pm10_station_id = air_quality.get(const.CONF_PM10_STATION) if air_quality else None
+        self.pm25_station_id = air_quality.get(const.CONF_PM25_STATION) if air_quality else None
+        self.ozone_station_id = air_quality.get(const.CONF_OZONE_STATION) if air_quality else None
 
         super().__init__(
             hass,
@@ -48,8 +52,20 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch the latest data from the API."""
         _LOGGER.warning("Fetching data")
-        sensor_data, sensor_data_raw = await self.fetch_station_data(self.station_id)
-        forecast_data, forecast_raw = await _fetch_forecast_data(self.zone_id)
+        sensor_response = self.fetch_station_data(self.station_id)
+        forecast_response = _fetch_forecast_data(self.zone_id)
+        ozone_response = self.fetch_air_quality_data(
+            self.ozone_station_id, 'O3') if self.ozone_station_id and self.ozone_station_id != "None" else None
+        pm10_response = self.fetch_air_quality_data(
+            self.pm10_station_id, 'PM10') if self.pm10_station_id and self.pm10_station_id != "None" else None
+        pm25_response = self.fetch_air_quality_data(
+            self.pm25_station_id, 'PM2.5') if self.pm25_station_id and self.pm25_station_id != "None" else None
+
+        sensor_data, sensor_data_raw = await sensor_response
+        forecast_data, forecast_raw = await forecast_response
+        sensor_data["pm10"] = (await pm10_response)["MEDIA"] if pm10_response else None
+        sensor_data["pm25"] = (await pm25_response)["MEDIA"] if pm25_response else None
+        sensor_data["ozone"] = (await ozone_response)["MEDIA"] if ozone_response else None
 
         day_cfg = DayThresholds()
         night_cfg = NightThresholds()
@@ -198,6 +214,21 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         extracted_data["dt"] = dataora
 
         return extracted_data, filtered_data
+
+    async def fetch_air_quality_data(self, station_id, parametro):
+        """Fetch air quality data from the station."""
+        url = f"{API_BASE}/aria_valori_orari?codseqst={station_id}&parametro={parametro}"
+        async with aiohttp.ClientSession() as session, session.get(url) as response:
+            if response.status != 200:
+                raise UpdateFailed(f"Error fetching data: {response.status}")
+            data = await response.json()
+
+        latest = {}
+        for item in data.get("data", []):
+            if item["DATA_ORA"] > latest.get("DATA_ORA", ""):
+                latest = item
+
+        return latest
 
     async def _compute_condition_from_sensors(self, lat, long, sensor_data, day_cfg=DayThresholds(), night_cfg=NightThresholds()):
         """Compute the current condition based on sensor data."""

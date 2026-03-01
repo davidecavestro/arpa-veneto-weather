@@ -3,6 +3,7 @@ import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers import selector
 from .const import (
     DOMAIN,
@@ -22,6 +23,10 @@ from .const import (
     CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT as NIGHT_CLEAR_THRESHOLD_DEFAULT,
     CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD as NIGHT_PARTLY_THRESHOLD,
     CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT as NIGHT_PARTLY_THRESHOLD_DEFAULT,
+    CONF_AIR_QUALITY,
+    CONF_PM10_STATION,
+    CONF_PM25_STATION,
+    CONF_OZONE_STATION,
 )
 
 async def fetch_zone_names():
@@ -72,6 +77,23 @@ async def fetch_stations():
             entry["codseqst"]: f"{entry['nome_stazione']} ({entry['provincia'].title()})" for entry in sorted_stations
         }
         stations = {item["codseqst"]: item for item in sorted_stations}
+
+        return id_to_name, stations
+
+async def fetch_stations_air(cod_parametro):
+    """Fetch the list of Ozone stations and their codes."""
+    async with aiohttp.ClientSession() as session, session.get(
+        f"{API_BASE}/aria_elenco_stazioni?cod_parametro={cod_parametro}"
+    ) as response:
+        response.raise_for_status()
+        json_data = await response.json()
+        # Access the "data" key which contains the list of stations
+        data = json_data.get("data", [])
+        sorted_stations = sorted(data, key=lambda x: x["RETE"] + x["NOME_STAZIONE"])
+        id_to_name = {
+            entry["CODSEQST"]: f"{entry['NOME_STAZIONE']} - {entry['RETE']}" for entry in sorted_stations
+        }
+        stations = {item["CODSEQST"]: item for item in sorted_stations}
 
         return id_to_name, stations
 
@@ -222,6 +244,14 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
 
             return self.async_create_entry(title="Configure options", data=user_input)
 
+        # Fetch air quality stations
+        ozone_stations_response = fetch_stations_air("7")  # Ozone parameter code
+        pm10_stations_response = fetch_stations_air("25")  # PM10 parameter code
+        pm25_stations_response = fetch_stations_air("39")  # PM2.5 parameter code
+        self.ozone_stations, _ = await ozone_stations_response
+        self.pm10_stations, _ = await pm10_stations_response
+        self.pm25_stations, _ = await pm25_stations_response
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -255,9 +285,33 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                             mode=selector.SelectSelectorMode.LIST,
                             translation_key=CONF_INFER_CONDITION
                         ),
+                    ),
+                    vol.Required(CONF_AIR_QUALITY): section(
+                        # for air stations, populate the list with fetched stations plus a "None" option
+                        # also set the default value from existing config or "None" if not set
+                        vol.Schema(
+                            {
+                                vol.Optional(
+                                    CONF_PM10_STATION,
+                                    default=self.config_entry.options.get(CONF_AIR_QUALITY, {}).get(
+                                        CONF_PM10_STATION) or "None"
+                                ): vol.In({"None": "-"} | self.pm10_stations),
+                                vol.Optional(
+                                    CONF_PM25_STATION,
+                                    default=self.config_entry.options.get(CONF_AIR_QUALITY, {}).get(
+                                        CONF_PM25_STATION) or "None"
+                                ): vol.In({"None": "-"} | self.pm25_stations),
+                                vol.Optional(
+                                    CONF_OZONE_STATION,
+                                    default=self.config_entry.options.get(CONF_AIR_QUALITY, {}).get(
+                                        CONF_OZONE_STATION) or "None"
+                                ): vol.In({"None": "-"} | self.ozone_stations)
+                            }
+                        ),
+                        {"collapsed": True}
                     )
                 }
-            ),
+            )
         )
 
     async def async_step_thresholds(self, user_input=None):
