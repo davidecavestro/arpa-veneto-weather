@@ -47,20 +47,22 @@ After selecting, it could take up to a minute.
 
 To add Arpa Veneto Weather to your installation, do the following:
 
-- Go to Configuration and Integrations
-- Click the + ADD INTEGRATION button in the lower right corner.
-- Search for *Arpa Veneto Weather** and click the integration.
+- Go to _Settings_ then _Devices % services_.
+- From the _Integrations_ tab click the ⊕ _Add Integration_ button on the lower right corner.
+- Search for *ARPA Veneto Weather* and click the integration.
 - When loaded, there will be a configuration wizard, where you must enter:
 
   | Parameter | Required | Default Value | Description |
   | --------- | -------- | ------------- | ----------- |
-  | `Comune ID` | Yes | None | Set the municipality to use for a a forecast zone lookup, based on [synthetic forecast by zone](https://meteo.arpa.veneto.it/?page=comuni_geo). |
-  | `Zone ID` | Yes | None | Set the forecast zone. |
-  | `Station ID` | Yes | None | Choose the Weather Station for getting current conditions among the available ones. Check [the meteo variables page](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo). |
+  | `Comune ID` | Yes | None | Set the municipality to use for the *forecast zone lookup*, based on [synthetic forecast by zone](https://meteo.arpa.veneto.it/?page=comuni_geo). |
+  | `Zone ID` | Yes | None | Set the *forecast zone*. |
+  | `Station ID` | Yes | None | Choose the Weather Station for getting *current conditions* among the available ones. Check [the meteo variables page](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo). |
 
 - Complete the wizard to save your data.
   If all goes well you should now have a new Weather entity with data from Arpav Forecast
-- **Please Note**: You can configure multiple instances of the Integration.
+
+> [!TIP]
+You can configure multiple instances of the Integration, so properly name them to avoid confusion.
 
 ### Preferences
 
@@ -101,13 +103,13 @@ please note that this measure is not typically supplied directly by the chosen s
 </dl>
 
 > [!NOTE]
-This feature is still under test, so it is disabled by default.<br>
+The current weather condition computation is disabled by default.<br>
 In order to enable it, go to <i>Configuration > Integrations > Arpa Veneto Weather</i>.<br>
 Click on the gear on the station you are interested in.<br>
 Then choose <i>Compute the current condition: &gt; <b>From sensors</b></i>.
 
 > [!TIP]
-Only the brave - choose  <i>Compute the current condition</i>: <i>From sensors
+Choose  <i>Compute the current condition</i>: <i>From sensors
 using custom thresholds</b></i> to set custom thresholds
 for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i>
 during day and night.
