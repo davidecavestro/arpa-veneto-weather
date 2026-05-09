@@ -1,3 +1,12 @@
+## [0.8.1] - 2026-05-09
+### :bug: Bug Fixes
+- [`d4af3dc`](https://github.com/davidecavestro/arpa-veneto-weather/commit/d4af3dcd1b95c274d47a2284d86fb0b7bed0b531) - skip air quality broken responses (mitigates [#23](https://github.com/davidecavestro/arpa-veneto-weather/pull/23)) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`640e668`](https://github.com/davidecavestro/arpa-veneto-weather/commit/640e668c3784a81d00922df4c3d59e9f2ce49879) - **deps**: update dependency python to 3.14 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`1a061fc`](https://github.com/davidecavestro/arpa-veneto-weather/commit/1a061fc5c61ff7274476732a5ecd6b44fcc38d29) - update debug cfg *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.8.0] - 2026-03-01
 ### :sparkles: New Features
 - [`e1b6082`](https://github.com/davidecavestro/arpa-veneto-weather/commit/e1b6082d22979a25afecd7270d7dbd12a11687b0) - expose PM10, PM2.5 and Ozone sensors as per [#10](https://github.com/davidecavestro/arpa-veneto-weather/pull/10) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -153,3 +162,4 @@
 [0.5.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.3...0.5.4
 [0.6.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.4...0.6.0
 [0.8.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.7.0...0.8.0
+[0.8.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.0...0.8.1
