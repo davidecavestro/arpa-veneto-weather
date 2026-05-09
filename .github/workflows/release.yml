@@ -38,7 +38,7 @@ jobs:
           zip arpa-veneto-weather.zip -r ./
 
       - name: "Upload the ZIP file to the release"
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.changelog.outputs.changes }}
           files: ${{ github.workspace }}/custom_components/arpa_veneto_weather/arpa-veneto-weather.zip
