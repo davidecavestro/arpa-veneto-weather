@@ -44,7 +44,7 @@ jobs:
           files: ${{ github.workspace }}/custom_components/arpa_veneto_weather/arpa-veneto-weather.zip
 
       - name: Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: main
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
