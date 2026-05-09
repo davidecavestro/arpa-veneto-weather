@@ -63,9 +63,9 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         sensor_data, sensor_data_raw = await sensor_response
         forecast_data, forecast_raw = await forecast_response
-        sensor_data["pm10"] = (await pm10_response)["MEDIA"] if pm10_response else None
-        sensor_data["pm25"] = (await pm25_response)["MEDIA"] if pm25_response else None
-        sensor_data["ozone"] = (await ozone_response)["MEDIA"] if ozone_response else None
+        sensor_data["pm10"] = (await pm10_response).get("MEDIA", None) if pm10_response else None
+        sensor_data["pm25"] = (await pm25_response).get("MEDIA", None) if pm25_response else None
+        sensor_data["ozone"] = (await ozone_response).get("MEDIA", None) if ozone_response else None
 
         day_cfg = DayThresholds()
         night_cfg = NightThresholds()
