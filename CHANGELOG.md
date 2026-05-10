@@ -1,3 +1,18 @@
+## [0.9.0] - 2026-05-10
+### :wrench: Chores
+- [`a9e91aa`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a9e91aa8ce01d3bf4524220928b9ccc1ba54857a) - **deps**: update dependency pip to v26 [security] *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`0dca235`](https://github.com/davidecavestro/arpa-veneto-weather/commit/0dca2352b76620c50443c4f093592f59d8a7d669) - **deps**: update stefanzweifel/git-auto-commit-action action to v7 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`58905d5`](https://github.com/davidecavestro/arpa-veneto-weather/commit/58905d5f14d618317273168d2386f183b72f824c) - **deps**: update dependency colorlog to v6.10.1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`a4dba77`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a4dba779f988e79234b0f339a1e296e0a6b06790) - **deps**: update softprops/action-gh-release action to v3 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`43ab40b`](https://github.com/davidecavestro/arpa-veneto-weather/commit/43ab40ba1c6ec3219f55f3377d997a1b5b59ab20) - **deps**: update actions/setup-python action to v6 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`3e495f4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/3e495f428f122cd4faa2e0371e857256627f71ad) - **deps**: update actions/checkout action to v6 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`41cb42e`](https://github.com/davidecavestro/arpa-veneto-weather/commit/41cb42ef93bced7d18ce34f5c239aa39b0e3c32b) - **deps**: update dependency ruff to v0.15.12 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`948d237`](https://github.com/davidecavestro/arpa-veneto-weather/commit/948d2374d6561b6e7dcda6838b0d1187ab63de07) - **deps**: update dependency pytz to v2026 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`9460ac4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/9460ac4b361748a94b246c824733ba9f456036ef) - **deps**: update mcr.microsoft.com/vscode/devcontainers/python docker tag to v3.14 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`a5f513f`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a5f513ff4950fe98435250b2825d5279714b841a) - separate dev deps from runtime ones *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`66798fb`](https://github.com/davidecavestro/arpa-veneto-weather/commit/66798fb44eac7a8037d732ba576e52d89f2c8071) - stick to ha 2026.4.4 *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.8.1] - 2026-05-09
 ### :bug: Bug Fixes
 - [`d4af3dc`](https://github.com/davidecavestro/arpa-veneto-weather/commit/d4af3dcd1b95c274d47a2284d86fb0b7bed0b531) - skip air quality broken responses (mitigates [#23](https://github.com/davidecavestro/arpa-veneto-weather/pull/23)) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -163,3 +178,4 @@
 [0.6.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.5.4...0.6.0
 [0.8.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.7.0...0.8.0
 [0.8.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.0...0.8.1
+[0.9.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.1...0.9.0
