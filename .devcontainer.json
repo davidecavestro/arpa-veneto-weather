@@ -1,5 +1,5 @@
 {
-    "name": "ludeeus/integration_blueprint",
+    "name": "arpa_veneto_weather",
     "image": "mcr.microsoft.com/vscode/devcontainers/python:3.14-trixie",
     "postCreateCommand": "wget -qO- https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_amd64 | sudo tee /bin/go2rtc >/dev/null && sudo chmod +x /bin/go2rtc && scripts/setup",
     "postStartCommand": "go2rtc --version",
@@ -15,6 +15,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "charliermarsh.ruff",
                 "ms-python.python",
                 "github.vscode-pull-request-github",
                 "ryanluker.vscode-coverage-gutters",
@@ -28,7 +29,12 @@
                 "editor.formatOnPaste": false,
                 "editor.formatOnSave": true,
                 "editor.formatOnType": true,
-                "files.trimTrailingWhitespace": true
+                "files.trimTrailingWhitespace": true,
+                "python.analysis.typeCheckingMode": "basic",
+                "python.analysis.autoImportCompletions": true,
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                }
             }
         }
     },

@@ -163,3 +163,5 @@ cython_debug/
 config/
 custom_components/.DS_Store
 .DS_Store
+
+*.bak
