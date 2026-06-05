@@ -14,7 +14,7 @@ from .thresholds import DayThresholds, NightThresholds
 from astral import LocationInfo
 from astral.sun import sun, elevation
 from astral.moon import phase
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, UTC
 from math import radians, cos, sin, asin, sqrt
 
 
@@ -177,7 +177,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             # cumulative 1h and 24h, but lokking at the dataora timestamp, not just counting 12 or 288 points
             # this is to handle possible missing data points
 
-            now = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=1)))
+            now = datetime.now(UTC).astimezone(timezone(timedelta(hours=1)))
             one_hour_ago = now - timedelta(hours=1)
 
             precipitation_cumulative_1h = _cumulate_since(precipitation_data, one_hour_ago)
