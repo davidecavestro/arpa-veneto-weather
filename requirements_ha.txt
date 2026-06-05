@@ -1,6 +1,1 @@
-colorlog==6.10.1
-homeassistant==2026.4.4
-mypy==2.0.0
-pip>=26.1.1
-pre-commit==4.6.0
-ruff==0.15.12
+pytz==2026.2
