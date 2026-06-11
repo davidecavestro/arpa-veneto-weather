@@ -1,7 +1,7 @@
 {
     "name": "arpa_veneto_weather",
     "image": "mcr.microsoft.com/vscode/devcontainers/python:3.14-trixie",
-    "postCreateCommand": "wget -qO- https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_amd64 | sudo tee /bin/go2rtc >/dev/null && sudo chmod +x /bin/go2rtc && scripts/setup",
+    "postCreateCommand": "wget -qO- https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_amd64 | sudo tee /bin/go2rtc >/dev/null && sudo chmod +x /bin/go2rtc && pip install uv && scripts/setup",
     "postStartCommand": "go2rtc --version",
     "forwardPorts": [
         8123
@@ -17,14 +17,18 @@
             "extensions": [
                 "charliermarsh.ruff",
                 "ms-python.python",
-                "github.vscode-pull-request-github",
+                "ms-python.debugpy",
+                "matangover.mypy",
+                "ms-vscode.vscode-json",
+                "github.vscode-github-actions",
                 "ryanluker.vscode-coverage-gutters",
                 "ms-python.vscode-pylance"
             ],
             "settings": {
                 "files.eol": "\n",
                 "editor.tabSize": 4,
-                "python.pythonPath": "/usr/bin/python3",
+                "python.pythonPath": "/home/vscode/venv/bin/python3",
+                "python-envs.alwaysUseUv": true,
                 "python.analysis.autoSearchPaths": false,
                 "editor.formatOnPaste": false,
                 "editor.formatOnSave": true,
@@ -39,6 +43,9 @@
         }
     },
     "remoteUser": "vscode",
+    "remoteEnv": {
+        "UV_CACGE_DIR": "/tmp/uv-cache"
+    },
     "features": {
         "ghcr.io/devcontainers/features/rust:1": {},
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {

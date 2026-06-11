@@ -521,7 +521,7 @@ def _assemble_forecast_dict(entry):
     static_props = {
         "datetime": _get_forecast_datetime(entry["scadenza"], entry["intervallo"]),
         "type": _get_forecast_type(entry["intervallo"]),
-        "condition": _get_forecast_condition(entry["simbolo"]),
+        # "condition": _get_forecast_condition(entry["simbolo"]),
         "precipitation_probability": _parse_precipitation_prob(entry["prob precipitazioni"]),
         "forecast_reliability": entry["attendibilita"],
         "weather_description": entry["testo"],

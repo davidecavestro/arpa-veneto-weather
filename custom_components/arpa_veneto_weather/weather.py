@@ -4,9 +4,9 @@ from collections import defaultdict
 from datetime import datetime
 import json
 
-from homeassistant.components.weather import WeatherEntity, WeatherEntityFeature, Forecast
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.components.weather import WeatherEntity, Forecast
+from homeassistant.components.weather.const import WeatherEntityFeature
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 
@@ -132,8 +132,17 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     @property
     def state(self):
         """Return the state of the entity."""
+        return self.condition
 
-        return self.coordinator.data["sensors"].get("condition") or "unknown"
+    @property
+    def condition(self) -> str | None:
+        """Return the current condition."""
+        return self.coordinator.data["sensors"].get("condition")
+
+    @property
+    def native_condition(self) -> str | None:
+        """Return the current condition (modern HA property standard)."""
+        return self.condition
 
     @property
     def supported_features(self) -> WeatherEntityFeature:

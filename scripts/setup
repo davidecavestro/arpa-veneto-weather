@@ -4,4 +4,7 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-python3 -m pip install --requirement requirements.txt --requirement requirements_ha.txt
+uv venv ~/venv/ -q --allow-existing
+source ~/venv//bin/activate
+#uv pip install ha-ffmpeg aiodhcpwatcher aiousbwatcher aiohasupervisor
+uv pip install -r requirements.txt -r requirements_ha.txt
