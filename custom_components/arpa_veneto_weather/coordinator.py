@@ -217,7 +217,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def fetch_air_quality_data(self, station_id, parametro):
         """Fetch air quality data from the station."""
-        url = f"{API_BASE}/aria_valori_orari?codseqst={station_id}&parametro={parametro}"
+        # get all data as the "parametro" is not stable across stations (PM10 vs PM102)
+        url = f"{API_BASE}/aria_valori_orari?codseqst={station_id}"
         async with aiohttp.ClientSession() as session, session.get(url) as response:
             if response.status != 200:
                 raise UpdateFailed(f"Error fetching data: {response.status}")
@@ -225,8 +226,10 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         latest = {}
         for item in data.get("data", []):
-            if item["DATA_ORA"] > latest.get("DATA_ORA", ""):
-                latest = item
+            # filter by param
+            if item.get("PARAMETRO", "").startswith(parametro):
+                if item["DATA_ORA"] > latest.get("DATA_ORA", ""):
+                    latest = item
 
         return latest
 
