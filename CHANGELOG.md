@@ -1,3 +1,21 @@
+## [0.10.0] - 2026-06-13
+### :bug: Bug Fixes
+- [`ad6836c`](https://github.com/davidecavestro/arpa-veneto-weather/commit/ad6836c8e1d95f89431628cfcc7c8d83accf2f74) - lint failure for UTC *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`2a0f842`](https://github.com/davidecavestro/arpa-veneto-weather/commit/2a0f8428a4d667370e601ab37cf76a16fcd71670) - strenghten air quality data gathering *(PR [#30](https://github.com/davidecavestro/arpa-veneto-weather/pull/30) by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`a54e49b`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a54e49b137456fe34ace51962fbb89b85d20ab6c) - better dev UX *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`e719b7d`](https://github.com/davidecavestro/arpa-veneto-weather/commit/e719b7d2aeb1c9a24a59de9fabfc2c472d497892) - update linting *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`3eec314`](https://github.com/davidecavestro/arpa-veneto-weather/commit/3eec314ff7441c4bf454858b578ee747824a0e57) - **deps**: update dependency homeassistant to v2026.6.0 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`ec1cf24`](https://github.com/davidecavestro/arpa-veneto-weather/commit/ec1cf2460b13859a06f49409166872579cc0a0a7) - **deps**: update actions/checkout action to v6.0.3 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`8ea6b20`](https://github.com/davidecavestro/arpa-veneto-weather/commit/8ea6b2083413740352b343fa08b849fa06ce6edb) - **deps**: update dependency ruff to v0.15.16 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`19faadf`](https://github.com/davidecavestro/arpa-veneto-weather/commit/19faadffae887fa9a4887007366c97d1eebbeb66) - lint for python 3.14 *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`ef4233e`](https://github.com/davidecavestro/arpa-veneto-weather/commit/ef4233e223a48afb055b4bbb2c9bcc24622f9246) - **deps**: update dependency mypy to v2.1.0 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`806b593`](https://github.com/davidecavestro/arpa-veneto-weather/commit/806b5938b73cbdaa2fb4fed1c1c7cd86be483e5f) - use uv for dev *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`985020a`](https://github.com/davidecavestro/arpa-veneto-weather/commit/985020a58501d319a4ac9c92c18a4719bccfad0d) - update dev toools *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`4f4c0d3`](https://github.com/davidecavestro/arpa-veneto-weather/commit/4f4c0d36ae74d694575b8898323dcd3048e3b37b) - add state_class to sensors *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.9.0] - 2026-05-10
 ### :wrench: Chores
 - [`a9e91aa`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a9e91aa8ce01d3bf4524220928b9ccc1ba54857a) - **deps**: update dependency pip to v26 [security] *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
@@ -179,3 +197,4 @@
 [0.8.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.7.0...0.8.0
 [0.8.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.0...0.8.1
 [0.9.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.1...0.9.0
+[0.10.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.9.0...0.10.0
