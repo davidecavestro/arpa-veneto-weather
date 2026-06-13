@@ -1,0 +1,17 @@
+homeassistant:
+  name: Home
+  latitude: 0
+  longitude: 0
+  elevation: 0
+  unit_system: metric
+  time_zone: UTC
+
+http:
+debugpy:
+
+logger:
+  default: info
+  logs:
+    custom_components.arpa_veneto_weather: debug
+
+arpa_veneto_weather:

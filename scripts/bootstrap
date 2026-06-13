@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+cd "$(realpath "$(dirname "$0")/..")"
+
+# Activate venv
+VENV_PATH="/home/vscode/.local/ha-venv"
+if [ -d "$VENV_PATH" ]; then
+    . "$VENV_PATH/bin/activate"
+fi
+
+echo "Refreshing development dependencies..."
+uv pip install \
+    -e . \
+    -r requirements.txt \
+    -r requirements_ha.txt \
+    --upgrade \
+    --config-settings editable_mode=compat

@@ -16,6 +16,9 @@ fi
 ## without resulting to symlinks.
 export PYTHONPATH="${PYTHONPATH}:${PWD}/custom_components"
 
-source ~/venv//bin/activate
+if [ -z "$VIRTUAL_ENV" ]; then
+    source ~/.local/ha-venv/bin/activate
+fi
+
 # Start Home Assistant
-hass --config "${PWD}/config" --debug
+hass -c "${PWD}/config" --debug

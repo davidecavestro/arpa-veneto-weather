@@ -1,10 +1,33 @@
 #!/usr/bin/env bash
-
 set -e
 
 cd "$(dirname "$0")/.."
 
-uv venv ~/venv/ -q --allow-existing
-source ~/venv//bin/activate
-#uv pip install ha-ffmpeg aiodhcpwatcher aiousbwatcher aiohasupervisor
-uv pip install -r requirements.txt -r requirements_ha.txt
+# Extract HA version from requirements.txt
+HA_VERSION=$(grep "^homeassistant==" requirements.txt | cut -d'=' -f3)
+
+VENV_PATH="/home/vscode/.local/ha-venv"
+if [ ! -d "$VENV_PATH" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv "$VENV_PATH"
+fi
+
+source "$VENV_PATH/bin/activate"
+
+if ! command -v uv &> /dev/null; then
+    python3 -m pip install uv
+fi
+
+# Download matching requirements_all.txt if not present
+if [ ! -f "requirements_all.txt" ]; then
+    echo "Downloading requirements_all.txt for HA $HA_VERSION..."
+    curl -sS -o requirements_all.txt \
+        "https://raw.githubusercontent.com/home-assistant/core/$HA_VERSION/requirements_all.txt"
+fi
+
+uv pip install \
+    -e . \
+    -r requirements.txt \
+    -r requirements_all.txt \
+    --upgrade \
+    --config-settings editable_mode=compat
