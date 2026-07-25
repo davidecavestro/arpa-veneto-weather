@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "BSD-3-Clause"}
 requires-python = ">=3.11"
 dependencies = [
-    "pytz==2026.2",
+    "pytz==2026.3.post1",
 ]
 
 [tool.setuptools.packages.find]
