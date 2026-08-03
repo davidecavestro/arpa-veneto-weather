@@ -1,3 +1,14 @@
+## [0.10.1] - 2026-08-03
+### :bug: Bug Fixes
+- [`de4c6d5`](https://github.com/davidecavestro/arpa-veneto-weather/commit/de4c6d5866367fef978c101feff675d8102a1274) - lost icons on forecasts - [#43](https://github.com/davidecavestro/arpa-veneto-weather/pull/43) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`a356ef3`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a356ef36af5a60d005eb91dc84d25d6e25b5d248) - lint broken on CI *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`4e93fb0`](https://github.com/davidecavestro/arpa-veneto-weather/commit/4e93fb0836850a5be6b840ac27f567089eaef46d) - **deps**: update dependency homeassistant to v2026.6.3 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`06789c0`](https://github.com/davidecavestro/arpa-veneto-weather/commit/06789c0736346edcb96efcde2c296f65d87232e4) - **deps**: update dependency ruff to v0.15.17 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`83bbdad`](https://github.com/davidecavestro/arpa-veneto-weather/commit/83bbdad2878d3125a79e7b82baaf1111fb706b99) - devocontainer setup is broken *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.10.0] - 2026-06-13
 ### :bug: Bug Fixes
 - [`ad6836c`](https://github.com/davidecavestro/arpa-veneto-weather/commit/ad6836c8e1d95f89431628cfcc7c8d83accf2f74) - lint failure for UTC *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -198,3 +209,4 @@
 [0.8.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.0...0.8.1
 [0.9.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.1...0.9.0
 [0.10.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.9.0...0.10.0
+[0.10.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.0...0.10.1
