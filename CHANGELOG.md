@@ -1,3 +1,18 @@
+## [0.11.0] - 2026-08-04
+### :bug: Bug Fixes
+- [`eba387c`](https://github.com/davidecavestro/arpa-veneto-weather/commit/eba387c377e4f668115501e01806ec9bcf6e4a7c) - **deps**: update dependency pytz to v2026.3.post1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`b23a1f1`](https://github.com/davidecavestro/arpa-veneto-weather/commit/b23a1f1aa01cc69b7d41b97c22433ab203391157) - sensors should have state_class=measurement to enable statistics *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`16cd3ee`](https://github.com/davidecavestro/arpa-veneto-weather/commit/16cd3ee3f654d554f3d4db865e1524e5c1c91f0c) - **deps**: update dependency homeassistant to v2026.7.4 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`ac8356c`](https://github.com/davidecavestro/arpa-veneto-weather/commit/ac8356cb52a1e2b2fdeb9d43de65346d2efc90f8) - **deps**: update actions/checkout action to v7 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`bbcfb52`](https://github.com/davidecavestro/arpa-veneto-weather/commit/bbcfb5293c1f55b41a43a30bd62eb00544fbb75f) - **deps**: update actions/setup-python action to v7 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`bff7496`](https://github.com/davidecavestro/arpa-veneto-weather/commit/bff749691152f8da16d3d19606b8ea93deabd5ea) - **deps**: update dependency mypy to v2.3.0 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`a37ed84`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a37ed849a4af2501e76d867bd7ef472cadcaeea4) - **deps**: update dependency colorlog to v6.12.0 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`fc50575`](https://github.com/davidecavestro/arpa-veneto-weather/commit/fc50575cd52cde273e8806ebad3ca0ef80b0ed31) - **deps**: update dependency ruff to v0.16.1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`5badc2f`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5badc2fd433a4f2a443292bd5f6ff7ba2f3ff5f8) - **deps**: update dependency pre-commit to v4.6.1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+
+
 ## [0.10.1] - 2026-08-03
 ### :bug: Bug Fixes
 - [`de4c6d5`](https://github.com/davidecavestro/arpa-veneto-weather/commit/de4c6d5866367fef978c101feff675d8102a1274) - lost icons on forecasts - [#43](https://github.com/davidecavestro/arpa-veneto-weather/pull/43) *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -210,3 +225,4 @@
 [0.9.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.8.1...0.9.0
 [0.10.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.9.0...0.10.0
 [0.10.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.0...0.10.1
+[0.11.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.1...0.11.0
