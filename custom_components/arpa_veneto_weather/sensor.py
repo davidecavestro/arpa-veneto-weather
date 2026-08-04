@@ -30,8 +30,10 @@ class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):
         self.station_id = config_entry.data.get("station_id")
         self.station_name = config_entry.data.get("station_name")
         self.sensor_type = sensor_type
-        self._attr_device_class = SENSOR_TYPES[sensor_type].get("device_class")
-        self._attr_native_unit_of_measurement = SENSOR_TYPES[sensor_type].get("unit")
+        sensor = SENSOR_TYPES[sensor_type]
+        self._attr_device_class = sensor.get("device_class") # type: ignore
+        self._attr_state_class = sensor.get("state_class") # type: ignore
+        self._attr_native_unit_of_measurement = sensor.get("unit")
 
         self._attr_unique_id = f"arpav_{sensor_type}_{self.station_id}"
 
