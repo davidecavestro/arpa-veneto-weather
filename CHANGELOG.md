@@ -1,3 +1,8 @@
+## [0.12.0] - 2026-08-09
+### :sparkles: New Features
+- [`0fedfa1`](https://github.com/davidecavestro/arpa-veneto-weather/commit/0fedfa13bcb1c2f4c52d288b775174d21eceb22d) - compute current conditions by default *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.11.0] - 2026-08-04
 ### :bug: Bug Fixes
 - [`eba387c`](https://github.com/davidecavestro/arpa-veneto-weather/commit/eba387c377e4f668115501e01806ec9bcf6e4a7c) - **deps**: update dependency pytz to v2026.3.post1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
@@ -226,3 +231,4 @@
 [0.10.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.9.0...0.10.0
 [0.10.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.0...0.10.1
 [0.11.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.1...0.11.0
+[0.12.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.11.0...0.12.0
