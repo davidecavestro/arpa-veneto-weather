@@ -103,10 +103,10 @@ please note that this measure is not typically supplied directly by the chosen s
 </dl>
 
 > [!NOTE]
-The current weather condition computation is disabled by default.<br>
-In order to enable it, go to <i>Configuration > Integrations > Arpa Veneto Weather</i>.<br>
+The current weather condition computation is enabled by default since v0.12.<br>
+In order to disable it, go to <i>Configuration > Integrations > Arpa Veneto Weather</i>.<br>
 Click on the gear on the station you are interested in.<br>
-Then choose <i>Compute the current condition: &gt; <b>From sensors</b></i>.
+Then choose <i>Compute the current condition: &gt; <b>Don't compute</b></i>.
 
 > [!TIP]
 Choose  <i>Compute the current condition</i>: <i>From sensors

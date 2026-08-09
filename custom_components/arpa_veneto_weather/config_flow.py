@@ -274,7 +274,7 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_INFER_CONDITION,
                         default=self.config_entry.options.get(
-                            CONF_INFER_CONDITION) or CONF_INFER_CONDITION_DISABLED
+                            CONF_INFER_CONDITION) or CONF_INFER_CONDITION_FROM_SENSORS
                     ): selector.SelectSelector(
                         selector.SelectSelectorConfig(
                             options=[
