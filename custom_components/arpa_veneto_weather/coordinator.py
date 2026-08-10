@@ -71,7 +71,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         night_cfg = NightThresholds()
         # Determine the current condition based on configuration
         match self.infer_condition:
-            case const.CONF_INFER_CONDITION_FROM_SENSORS:
+            case const.CONF_INFER_CONDITION_FROM_SENSORS | None:
                 sensor_data["condition"] = await self._compute_condition_from_sensors(self.latitude, self.longitude, sensor_data)
             case const.CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
                 opts = self.config_entry.options
