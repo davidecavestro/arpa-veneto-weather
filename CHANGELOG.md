@@ -1,3 +1,8 @@
+## [0.12.1] - 2026-08-10
+### :bug: Bug Fixes
+- [`62c85e6`](https://github.com/davidecavestro/arpa-veneto-weather/commit/62c85e650db23b2416e954cd70a6cb211c47a843) - current condition not computed from sensors by default *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.12.0] - 2026-08-09
 ### :sparkles: New Features
 - [`0fedfa1`](https://github.com/davidecavestro/arpa-veneto-weather/commit/0fedfa13bcb1c2f4c52d288b775174d21eceb22d) - compute current conditions by default *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -232,3 +237,4 @@
 [0.10.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.0...0.10.1
 [0.11.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.1...0.11.0
 [0.12.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.11.0...0.12.0
+[0.12.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.0...0.12.1
