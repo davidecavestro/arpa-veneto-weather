@@ -8,6 +8,7 @@ from .const import (
     SENSOR_TYPES,
     KEY_COORDINATOR
 )
+from datetime import datetime
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up ARPA Veneto sensors from a config entry."""
@@ -53,6 +54,18 @@ class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):
     @property
     def state(self):
         """Return the state of the sensor."""
+        if self.sensor_type == "precipitation_probability":
+            forecasts = self.coordinator.data["forecast"]
+
+            # Find forecast with datetime closest to now
+            now = datetime.now()
+            nearest = min(forecasts, key=lambda forecast: abs(forecast["datetime"] - now))
+
+            def get_attr(entry, key):
+                return entry.get(key) or ""
+
+            return get_attr(nearest, "precipitation_probability")
+
         return self.coordinator.data["sensors"].get(self.sensor_type)
 
     @property
