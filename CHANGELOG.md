@@ -1,3 +1,8 @@
+## [0.12.2] - 2026-08-11
+### :bug: Bug Fixes
+- [`4329875`](https://github.com/davidecavestro/arpa-veneto-weather/commit/432987500db1875c9a7aaa4428e2f6de668902c7) - Unknown is shown for the precipitation probability sensor *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+
 ## [0.12.1] - 2026-08-10
 ### :bug: Bug Fixes
 - [`62c85e6`](https://github.com/davidecavestro/arpa-veneto-weather/commit/62c85e650db23b2416e954cd70a6cb211c47a843) - current condition not computed from sensors by default *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -238,3 +243,4 @@
 [0.11.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.10.1...0.11.0
 [0.12.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.11.0...0.12.0
 [0.12.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.0...0.12.1
+[0.12.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.1...0.12.2
