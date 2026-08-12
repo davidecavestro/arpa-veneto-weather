@@ -220,7 +220,8 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         nearest = min(forecasts, key=lambda forecast: abs(forecast["datetime"] - now))
 
         def get_attr(entry, key):
-            return entry.get(key) or ""
+            value = entry.get(key)
+            return value if value is not None else ""
 
         payload = {
             "forecast_today_description": get_attr(nearest, "weather_description"),
