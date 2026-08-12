@@ -1,3 +1,14 @@
+## [0.12.3] - 2026-08-12
+### :bug: Bug Fixes
+- [`dc94568`](https://github.com/davidecavestro/arpa-veneto-weather/commit/dc94568517c5184f5a19aef8ffcd07a2ee8acefc) - forecast today precipitation proabbility is unknown *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+- [`693e750`](https://github.com/davidecavestro/arpa-veneto-weather/commit/693e750fb55dde291f70fd244cbe92787c47f93a) - precipitation probability unknown on sensor when it should be 0 *(commit by [@davidecavestro](https://github.com/davidecavestro))*
+
+### :wrench: Chores
+- [`435e19a`](https://github.com/davidecavestro/arpa-veneto-weather/commit/435e19ab29ec399851bf56606d406c4618bb212b) - **deps**: update dependency pre-commit to v4.6.2 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`5f1406e`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5f1406e91e9ad6c4e3233f169fc4158e82e9e06a) - **deps**: update dependency ruff to v0.16.2 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`b10ca3d`](https://github.com/davidecavestro/arpa-veneto-weather/commit/b10ca3d578f98bfee8a205e95e346d9294f0208b) - **deps**: update dependency homeassistant to v2026.8.1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+
+
 ## [0.12.2] - 2026-08-11
 ### :bug: Bug Fixes
 - [`4329875`](https://github.com/davidecavestro/arpa-veneto-weather/commit/432987500db1875c9a7aaa4428e2f6de668902c7) - Unknown is shown for the precipitation probability sensor *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -244,3 +255,4 @@
 [0.12.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.11.0...0.12.0
 [0.12.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.0...0.12.1
 [0.12.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.1...0.12.2
+[0.12.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.2...0.12.3
