@@ -279,9 +279,10 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         # Precipitation overrides everything
         if precipitation is not None and precipitation > 0:
             if temperature is not None:
-                if temperature <= 5:
-                    return "snow"
-                elif temperature <= 0:
+                # lowest threshold first, otherwise the second branch is dead code
+                if temperature <= 0:
+                    return "snowy"
+                elif temperature <= 5:
                     return "snowy-rainy"
                 if precipitation > 20:
                     return "pouring"
@@ -344,7 +345,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 offset = 0
 
             if sky_brightness + offset > night_cfg.clear:
-                return "clear"
+                return "clear-night"
             elif sky_brightness + offset > night_cfg.partly_cloudy:
                 return "partlycloudy"
             else:
