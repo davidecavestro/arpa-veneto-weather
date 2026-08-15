@@ -26,6 +26,11 @@ from homeassistant.helpers.update_coordinator import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# how many brightness stations to try, ordered by distance
+BRIGHTNESS_MAX_STATIONS = 5
+# readings older than this no longer describe the current sky
+BRIGHTNESS_MAX_AGE_HOURS = 6
+
 class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
     """Data update coordinator for ARPA Veneto."""
 
@@ -72,7 +77,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         # Determine the current condition based on configuration
         match self.infer_condition:
             case const.CONF_INFER_CONDITION_FROM_SENSORS | None:
-                sensor_data["condition"] = await self._compute_condition_from_sensors(self.latitude, self.longitude, sensor_data)
+                sensor_data["condition"] = await self._compute_condition_from_sensors(
+                    self.latitude, self.longitude, sensor_data, forecast=forecast_data)
             case const.CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
                 opts = self.config_entry.options
                 if opts.get("override_thresholds"):
@@ -89,7 +95,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                             "night_dark_moon", const.CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT),
                     )
 
-                sensor_data["condition"] = await self._compute_condition_from_sensors(self.latitude, self.longitude, sensor_data, day_cfg, night_cfg)
+                sensor_data["condition"] = await self._compute_condition_from_sensors(
+                    self.latitude, self.longitude, sensor_data, day_cfg, night_cfg, forecast=forecast_data)
             case _:  # CONF_INFER_CONDITION_DISABLED or any other value
                 pass  # Do not compute condition
 
@@ -233,18 +240,18 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         return latest
 
-    async def _compute_condition_from_sensors(self, lat, long, sensor_data, day_cfg=DayThresholds(), night_cfg=NightThresholds()):
+    async def _compute_condition_from_sensors(self, lat, long, sensor_data, day_cfg=DayThresholds(), night_cfg=NightThresholds(), forecast=None):
         """Compute the current condition based on sensor data."""
 
         dt = await self._local_dt(sensor_data.get("dt"))
-        return await self.classify_sky(lat, long, dt, sensor_data, day_cfg, night_cfg)
+        return await self.classify_sky(lat, long, dt, sensor_data, day_cfg, night_cfg, forecast)
 
     async def _local_dt(self, dt_str):
         """Convert a datetime string to a localized datetime object."""
 
         return datetime.strptime(dt_str + " +0100", "%Y-%m-%dT%H:%M:%S %z")
 
-    async def classify_sky(self, lat, lon, dt, sensor_data, day_cfg: DayThresholds, night_cfg: NightThresholds):
+    async def classify_sky(self, lat, lon, dt, sensor_data, day_cfg: DayThresholds, night_cfg: NightThresholds, forecast=None):
         """Classifies the sky condition.
 
         Based on:
@@ -257,7 +264,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         :param sensor_data: sensor data containing "ghi" [W/m²], temperature [°C], humidity [%], wind_speed [km/h], precipitation [mm], visibility [km]
         :param day_cfg: the day thresholds configuration
         :param night_cfg: the night thresholds configuration
-        :return: string ["clear", "partlycloudy", "cloudy", "unknown"]
+        :param forecast: assembled forecast entries, used as a night fallback
+        :return: string ["clear-night", "partlycloudy", "cloudy", "unknown"]
         """
 
         temperature = sensor_data.get("temperature")
@@ -323,7 +331,9 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         else:
             sky_brightness = await self.get_night_sky_brightness(lat, lon)
             if sky_brightness is None:
-                return "unknown"
+                # the brightness network is published in daily batches, so at
+                # night there is often no fresh reading: fall back to the bulletin
+                return self._forecast_condition_at(dt, forecast, night=True) or "unknown"
 
             illum = moon_illumination(dt)
             if illum > 50:
@@ -342,6 +352,26 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                     return "windy-variant"
                 return "cloudy"
 
+    def _forecast_condition_at(self, dt, forecast, night=False):
+        """Return the forecast condition closest to the given datetime, or None."""
+
+        candidates = [
+            f for f in (forecast or [])
+            if f.get("condition") and isinstance(f.get("datetime"), datetime)
+        ]
+        # half-day entries track the current sky better than the daily summary
+        candidates = [f for f in candidates if f.get("type") == "twice_daily"] or candidates
+        if not candidates:
+            return None
+
+        target = dt.replace(tzinfo=None)
+        nearest = min(candidates, key=lambda f: abs(f["datetime"] - target))
+        condition = nearest["condition"]
+
+        if night and condition in ("sunny", "clear"):
+            return "clear-night"
+        return condition
+
     async def get_night_sky_brightness(self, lat, lon):
         """Approximate night sky brightness (mag/arcsec²) based on location."""
 
@@ -351,9 +381,24 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 raise UpdateFailed(f"Error fetching data: {response.status}")
             data = await response.json()
 
-        nearest_station = find_nearest_location(data.get("data", []), lat, lon)
+        # the closest station may have no readings at all
+        stations = sort_locations_by_distance(data.get("data", []), lat, lon)
 
-        url = f"{API_BASE}/meteo_brillanza_tabella?codseqst={nearest_station.get('codseqst')}"
+        for station in stations[:BRIGHTNESS_MAX_STATIONS]:
+            sky_brightness = await self._fetch_station_brightness(station.get("codseqst"))
+            if sky_brightness is not None:
+                return sky_brightness
+
+        _LOGGER.debug("No usable sky brightness reading from the nearby stations")
+        return None
+
+    async def _fetch_station_brightness(self, codseqst):
+        """Return the latest usable brightness reading of a station, or None."""
+
+        if codseqst is None:
+            return None
+
+        url = f"{API_BASE}/meteo_brillanza_tabella?codseqst={codseqst}"
         async with aiohttp.ClientSession() as session, session.get(url) as response:
             if response.status != 200:
                 raise UpdateFailed(f"Error fetching data: {response.status}")
@@ -361,17 +406,42 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         latest = {}
         for item in data.get("data", []):
-            if item["dataora"] > latest.get("dataora", ""):
+            if item.get("dataora", "") > latest.get("dataora", ""):
                 latest = item
 
-        sky_brightness = latest.get("valore")
+        if not latest:
+            return None
 
-        return float(sky_brightness)
+        try:
+            sky_brightness = float(latest.get("valore"))
+        except (TypeError, ValueError):
+            return None
+
+        # 0 means the sensor has no valid measurement (e.g. daylight)
+        if sky_brightness <= 0:
+            return None
+
+        try:
+            reading_dt = datetime.strptime(latest["dataora"], "%Y-%m-%dT%H:%M:%S")
+        except (KeyError, TypeError, ValueError):
+            return None
+
+        if datetime.now() - reading_dt > timedelta(hours=BRIGHTNESS_MAX_AGE_HOURS):
+            return None
+
+        return sky_brightness
 
 
 def find_nearest_location(locations, target_lat, target_lon):
     """Find the nearest location from a list based on latitude and longitude."""
     return min(
+        locations,
+        key=lambda x: haversine(x['latitudine'], x['longitudine'], target_lat, target_lon)
+    )
+
+def sort_locations_by_distance(locations, target_lat, target_lon):
+    """Sort locations by distance from the target coordinates."""
+    return sorted(
         locations,
         key=lambda x: haversine(x['latitudine'], x['longitudine'], target_lat, target_lon)
     )
