@@ -125,6 +125,12 @@ SENSOR_TYPES = {
         "device_class": "uv_index",
         "state_class": "measurement",
     },
+    "leaf_wetness": {
+        "name": "Leaf wetness",
+        "unit": "%",
+        "device_class": "moisture",
+        "state_class": "measurement",
+    },
     "pm10": {
         "name": "PM10",
         "unit": "µg/m³",

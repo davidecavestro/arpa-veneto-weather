@@ -168,6 +168,9 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                     # For W/m², the scaling factor is 0.04 because it represents instantaneous power
                     extracted_data["uv_index"] = round(float(valore) * 0.06 * 0.04)
                     extracted_data["ghi"] = round(float(valore))
+            elif tipo == "BFOGL":
+                # Leaf wetness, reported as the share of the interval the leaf was wet
+                extracted_data["leaf_wetness"] = float(valore)
 
         # prepare additional precipitation metrics
         # given that
