@@ -90,6 +90,9 @@
             "precipitation": {
                 "name": "Precipitation (last 5 minutes) in {station_name}"
             },
+            "precipitation_probability": {
+                "name": "Precipitation probability in {station_name}"
+            },
             "precipitation_hourly": {
                 "name": "Precipitation intensity in {station_name}"
             },
