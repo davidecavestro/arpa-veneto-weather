@@ -88,6 +88,9 @@
             "precipitation": {
                 "name": "Precipitazioni ultimi 5 minuti  a {station_name}"
             },
+            "precipitation_probability": {
+                "name": "Probabilità di precipitazione a {station_name}"
+            },
             "precipitation_hourly": {
                 "name": "Intensità precipitazioni a {station_name}"
             },
@@ -110,7 +113,7 @@
                 "name": "Precipitazioni cumulative ultime 24h a {station_name}"
             },
             "pressure": {
-                "name": "Pressionre a {station_name}"
+                "name": "Pressione a {station_name}"
             },
             "wind_bearing": {
                 "name": "Direzione vento a {station_name}"
