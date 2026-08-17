@@ -125,6 +125,9 @@
             },
             "uv_index": {
                 "name": "UV index in {station_name}"
+            },
+            "leaf_wetness": {
+                "name": "Leaf wetness in {station_name}"
             }
         },
         "weather": {

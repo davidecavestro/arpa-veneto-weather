@@ -123,6 +123,9 @@
             },
             "uv_index": {
                 "name": "Indice UV a {station_name}"
+            },
+            "leaf_wetness": {
+                "name": "Bagnatura fogliare a {station_name}"
             }
         },
         "weather": {
