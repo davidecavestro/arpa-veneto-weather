@@ -1,3 +1,14 @@
+## [0.12.4] - 2026-08-17
+### :bug: Bug Fixes
+- [`b68d0f9`](https://github.com/davidecavestro/arpa-veneto-weather/commit/b68d0f995e23cdaa62f1527ef2c56c6750188be5) - avoid crash when no night sky brightness reading is available
+- [`c43f3eb`](https://github.com/davidecavestro/arpa-veneto-weather/commit/c43f3eb4cc481b52334d4b30f88ad9f21a2f8c2c) - return valid Home Assistant weather conditions
+
+### :wrench: Chores
+- [`5e0cb0d`](https://github.com/davidecavestro/arpa-veneto-weather/commit/5e0cb0d811c9405c071081d13be8cd90de95cc4b) - **deps**: update dependency ruff to v0.16.3 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`d8fe072`](https://github.com/davidecavestro/arpa-veneto-weather/commit/d8fe072fdcffce575285d9cc3607519d0129a9e1) - **deps**: update dependency mypy to v2.3.1 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+- [`a12dab3`](https://github.com/davidecavestro/arpa-veneto-weather/commit/a12dab3803036dbe0ca6458fabf850b04fb83532) - **deps**: update dependency homeassistant to v2026.8.2 *(commit by [@renovate[bot]](https://github.com/apps/renovate))*
+
+
 ## [0.12.3] - 2026-08-12
 ### :bug: Bug Fixes
 - [`dc94568`](https://github.com/davidecavestro/arpa-veneto-weather/commit/dc94568517c5184f5a19aef8ffcd07a2ee8acefc) - forecast today precipitation proabbility is unknown *(commit by [@davidecavestro](https://github.com/davidecavestro))*
@@ -256,3 +267,4 @@
 [0.12.1]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.0...0.12.1
 [0.12.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.1...0.12.2
 [0.12.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.2...0.12.3
+[0.12.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.3...0.12.4
