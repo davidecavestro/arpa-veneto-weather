@@ -1,0 +1,21 @@
+{
+    "entity": {
+        "sensor": {
+            "visibility": {
+                "default": "mdi:eye"
+            },
+            "precipitation_probability": {
+                "default": "mdi:weather-rainy"
+            },
+            "precipitation_hourly": {
+                "default": "mdi:weather-pouring"
+            },
+            "wind_bearing": {
+                "default": "mdi:compass-outline"
+            },
+            "uv_index": {
+                "default": "mdi:sun-wireless"
+            }
+        }
+    }
+}
