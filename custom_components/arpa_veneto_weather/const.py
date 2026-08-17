@@ -45,7 +45,7 @@ SENSOR_TYPES = {
     "visibility": {
         "name": "Visibility",
         "unit": "km",
-        "device_class": "visibility",
+        "device_class": "distance",
         "state_class": "measurement",
     },
     "precipitation": {
@@ -57,13 +57,12 @@ SENSOR_TYPES = {
     "precipitation_probability": {
         "name": "Precipitation probability",
         "unit": "%",
-        "device_class": "probability",
         "state_class": "measurement",
     },
     "precipitation_hourly": {
         "name": "Precipitation intensity (mm/h)",
         "unit": "mm/h",
-        "device_class": "precipitation",
+        "device_class": "precipitation_intensity",
         "state_class": "total_increasing",
     },
     "precipitation_cumulative_1h": {
@@ -110,19 +109,16 @@ SENSOR_TYPES = {
     },
     "wind_bearing": {
         "name": "Wind bearing",
-        "device_class": "direction",
-        "state_class": "measurement",
     },
     "wind_speed": {
         "name": "Wind speed",
         "unit": "km/h",
-        "device_class": "wind",
+        "device_class": "wind_speed",
         "state_class": "measurement",
     },
     "uv_index": {
         "name": "UV index",
         "unit": "UV index",
-        "device_class": "uv_index",
         "state_class": "measurement",
     },
     "pm10": {
