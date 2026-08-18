@@ -7,6 +7,9 @@
         "aiohttp"
     ],
     "dependencies": [],
+    "after_dependencies": [
+        "recorder"
+    ],
     "codeowners": [
         "@davidecavestro"
     ],

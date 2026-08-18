@@ -65,7 +65,8 @@
                     "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione",
                     "expose_sensors_raw": "Esponi attributi aggiuntivi per i dati originali di sensore",
                     "infer_condition": "Calcola la condizione attuale",
-                    "night_condition": "Condizione attuale di notte"
+                    "night_condition": "Condizione attuale di notte",
+                    "archive_brightness": "Archivia la brillanza del cielo notturno come statistiche a lungo termine"
                 }
             },
             "thresholds": {

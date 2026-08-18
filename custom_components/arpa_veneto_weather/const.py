@@ -46,6 +46,9 @@ CONF_OBSERVATIONS = "observations"
 CONF_METAR_STATION = "metar_station"
 CONF_METAR_FILL_MISSING = "metar_fill_missing"
 
+# Archive of the night sky brightness as long-term statistics
+CONF_ARCHIVE_BRIGHTNESS = "archive_brightness"
+
 # What to report as the current condition while the sun is below the horizon
 CONF_NIGHT_CONDITION = "night_condition"
 CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST = "night_condition_brightness_or_forecast"
