@@ -1,3 +1,11 @@
 refresh_data:
   name: "Refresh Weather Data"
   description: "Manually refresh weather data from the API"
+  fields:
+    entry_id:
+      name: "Station"
+      description: "The configured station to refresh. Refreshes all of them when omitted."
+      required: false
+      selector:
+        config_entry:
+          integration: arpa_veneto_weather

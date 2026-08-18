@@ -66,11 +66,16 @@ async def async_setup(hass, config):
     """Register the service."""
     async def handle_refresh_data(call):
         """Handle the service call to refresh data."""
-        # Access the integration's coordinator
+        # Access the integration's coordinators, one per configured station
+        entries = hass.data.get(DOMAIN, {})
         entry_id = call.data.get("entry_id")
-        coordinators = hass.data[DOMAIN]
-        if entry_id in coordinators:
-            await coordinators[entry_id].async_request_refresh()
+        # without an explicit entry, refresh every configured station
+        entry_ids = [entry_id] if entry_id else list(entries)
+
+        for target in entry_ids:
+            coordinator = entries.get(target, {}).get(KEY_COORDINATOR)
+            if coordinator is not None:
+                await coordinator.async_request_refresh()
 
     # Register the service
     hass.services.async_register(
