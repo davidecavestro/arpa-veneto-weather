@@ -164,6 +164,10 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     def _forecasts(self):
         return self.coordinator.data.get("forecast", [])
 
+    def _measured_extremes(self):
+        """Return the temperature extremes measured on the day the station last reported."""
+        return self.coordinator.data["sensors"].get("measured_temperature_extremes") or {}
+
     async def async_forecast_twice_daily(self) -> list[Forecast] | None:
         """Return the twice-daily forecast."""
         forecasts = self._forecasts()
@@ -194,19 +198,28 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
                 # Take the first daytime entry for the date
                 selected_entry = daytime_entries[0].copy()
 
-                # Calculate temperatures, considering native_templow if available
+                # every half-day reports a temperature range, so the extremes of
+                # the day are the extremes of those ranges, not of their midpoints
                 temperatures = [
-                    (e["native_temperature"] + e["native_templow"]) / 2
-                    if "native_templow" in e
-                    else e["native_temperature"]
+                    temperature
                     for e in entries
-                    if "native_temperature" in e
+                    for temperature in (e.get("native_temperature"), e.get("native_templow"))
+                    if temperature is not None
                 ]
+
+                # the bulletin stops reporting the half-day that has elapsed, so
+                # for the current day the hours already gone are only known as
+                # measurements: without them today's low would be the low of the
+                # afternoon, well above the actual minimum of the night
+                measured = self._measured_extremes()
+                if measured.get("date") == str(date):
+                    temperatures += [measured["min"], measured["max"]]
                 # Calculate max temperature and min temperature for the date
-                selected_entry["native_temperature"] = max(temperatures)
+                if temperatures:
+                    selected_entry["native_temperature"] = max(temperatures)
                 if len(temperatures) > 1:
                     selected_entry["native_templow"] = min(temperatures)
-                elif "native_templow" in selected_entry:  # no hightly forecast -> no min
+                elif "native_templow" in selected_entry:  # no range at all -> no min
                     del selected_entry["native_templow"]
 
                 # Replace datetime with the date as string

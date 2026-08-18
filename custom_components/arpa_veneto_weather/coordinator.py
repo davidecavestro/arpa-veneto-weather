@@ -192,12 +192,16 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         # Dictionary to store the max-time item per type
         latest_by_type = {}
         precipitation_data = []
+        temperature_data = []
 
         for item in data.get("data", []):
             t = item["tipo"]
             # Collect all precipitation data points
             if t == "PREC":
                 precipitation_data.append(item)
+            # Collect all temperature data points
+            if t.startswith("TARIA"):
+                temperature_data.append(item)
             # Keep only the latest item per type
             if t not in latest_by_type or item["dataora"] > latest_by_type[t]["dataora"]:
                 latest_by_type[t] = item
@@ -283,6 +287,12 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                     name=extracted_data.get("station_name"),
                     observed_at=observed_at,
                 )
+
+        # the bulletin drops the half-day that has already elapsed, so the only
+        # source left for the extremes of the current day is the station itself
+        extremes = _measured_temperature_extremes(temperature_data)
+        if extremes:
+            extracted_data["measured_temperature_extremes"] = extremes
 
         extracted_data["last_update"] = datetime.now().isoformat()
         extracted_data["dt"] = dataora
@@ -660,6 +670,33 @@ def _fill_missing_values(sensor_data, sources, observation):
             name=observation.name,
             observed_at=observation.observed_at,
         )
+
+
+def _measured_temperature_extremes(temperature_data):
+    """Return the extremes measured on the last day the station reported.
+
+    Both the readings and the bulletin are dated by ARPAV, so the day is taken
+    as reported rather than converted, and the two can be matched directly.
+    """
+
+    values_by_day = {}
+    for item in temperature_data:
+        try:
+            value = float(item.get("valore"))
+        except (TypeError, ValueError):
+            continue
+
+        day = (item.get("dataora") or "")[:10]
+        if day:
+            values_by_day.setdefault(day, []).append(value)
+
+    if not values_by_day:
+        return None
+
+    day = max(values_by_day)
+    values = values_by_day[day]
+
+    return {"date": day, "min": min(values), "max": max(values)}
 
 
 def _arpav_isoformat(dataora):
