@@ -38,6 +38,7 @@ from .const import (
     CONF_OBSERVATIONS,
     CONF_METAR_STATION,
     CONF_METAR_FILL_MISSING,
+    CONF_ARCHIVE_BRIGHTNESS,
 )
 from . import metar
 from .coordinator import haversine
@@ -309,6 +310,11 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                             translation_key=CONF_INFER_CONDITION
                         ),
                     ),
+                    vol.Optional(
+                        CONF_ARCHIVE_BRIGHTNESS,
+                        default=self.config_entry.options.get(
+                            CONF_ARCHIVE_BRIGHTNESS) or False
+                    ): bool,
                     vol.Optional(
                         CONF_NIGHT_CONDITION,
                         default=self.config_entry.options.get(

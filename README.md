@@ -218,6 +218,34 @@ forecast one: for example a `cloudy` state coming from
 `source: forecast` means the sky could not be measured and the bulletin was
 used instead.
 
+## Archive of the night sky brightness
+
+The [night sky brightness](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza)
+network publishes its readings in a single batch a day, around 09:30 standard
+time, so a night value only becomes available the morning after. That makes it
+unusable to describe the current sky, but it remains a genuine measurement of
+the night that has just passed.
+
+Enabling _Archive the night sky brightness as long-term statistics_ imports
+those readings with their real timestamps, for the three brightness stations
+nearest to the chosen weather station:
+
+- statistics are hourly, with mean, minimum and maximum, in `mag/arcsec²`;
+- they are named `arpa_veneto_weather:sky_brightness_<station>` and can be
+  charted with a `statistics-graph` card;
+- the API exposes about the last 72 hours and they are all re-imported at every
+  run, so a day spent offline recovers by itself, with no duplicates;
+- the import runs at 11:15 local time, after the daily batch, and once at
+  startup. The `arpa_veneto_weather.archive_brightness` service runs it on
+  demand.
+
+> [!NOTE]
+This is entirely separate from the real-time path: no entity and no automation
+is fed by these statistics. They serve to recalibrate the night thresholds on
+the values a given area actually reaches, and to check after the fact what the
+forecast fallback got right. Requires the `recorder` integration, which is
+enabled by default.
+
 ## Expose raw data
 
 In order to get the raw data for advanced stuff in HA, from the UI go to

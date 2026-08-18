@@ -67,7 +67,8 @@
                     "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data",
                     "expose_sensors_raw": "Expose extra attributes for raw original sensor data",
                     "infer_condition": "Compute the current condition",
-                    "night_condition": "Current condition at night"
+                    "night_condition": "Current condition at night",
+                    "archive_brightness": "Archive the night sky brightness as long-term statistics"
                 }
             },
             "thresholds": {
