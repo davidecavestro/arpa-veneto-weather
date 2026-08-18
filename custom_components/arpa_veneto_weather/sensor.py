@@ -71,11 +71,18 @@ class ArpaVenetoSensor(CoordinatorEntity[DataUpdateCoordinator], SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        """Return additional attributes."""
-        return {
+        """Return additional attributes, including where the value comes from."""
+        attributes = {
             "station_id": self.station_id,
             "last_update": self.coordinator.data["sensors"].get("last_update"),
         }
+
+        # the entities of a single station are fed by different networks
+        provenance = self.coordinator.data.get("sources", {}).get(self.sensor_type)
+        if provenance:
+            attributes.update(provenance.as_attributes())
+
+        return attributes
 
     async def async_update(self):
         """Update the sensor state."""

@@ -230,6 +230,12 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
             "forecast_today_reliability": get_attr(nearest, "forecast_reliability"),
         }
 
+        # tell a measured condition apart from a forecast one
+        provenance = self.coordinator.data.get("sources", {}).get("condition")
+        if provenance:
+            payload.update({f"condition_{key}": value
+                            for key, value in provenance.as_attributes().items()})
+
         if self.expose_forecast_json:
             json_forecast = json.dumps(forecasts, indent=2, cls=DateTimeEncoder)
             payload["forecast"] = json_forecast

@@ -115,6 +115,37 @@ for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloud
 during day and night.
 
 
+## Data provenance
+
+A single weather station in Home Assistant is fed by several distinct ARPAV
+networks: the [meteogram](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/meteo-idro-nivo/variabili_meteo)
+network for the observations, the [air quality](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/aria/qualita-aria-dati-in-diretta)
+network, the [night sky brightness](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/luminosita-del-cielo/brillanza)
+network and the forecast bulletin. They have different locations, different
+sampling intervals and different publishing latencies, and not every value is
+an observation: some are forecasts.
+
+Every entity therefore reports where its value comes from, as extra state
+attributes:
+
+| Attribute | Description |
+| --------- | ----------- |
+| `source` | Origin of the value: `station`, `air_quality_station`, `sky_brightness_station`, `forecast` or `unknown` |
+| `source_name` | The reporting station, or the forecast zone |
+| `source_observed_at` | When the value was observed at the origin, which can be well before the last update |
+
+The weather entity exposes the same information for the current condition,
+prefixed with `condition_`, plus `condition_source_rule`: the criterion that
+decided the condition, one of `precipitation`, `visibility`, `wind`,
+`solar_radiation`, `sky_brightness` or `forecast`.
+
+> [!TIP]
+`condition_source` is the honest way to tell a measured condition from a
+forecast one: for example a `cloudy` state coming from
+`source: station, source_rule: solar_radiation` is measured sunlight, while
+`source: forecast` means the sky could not be measured and the bulletin was
+used instead.
+
 ## Expose raw data
 
 In order to get the raw data for advanced stuff in HA, from the UI go to

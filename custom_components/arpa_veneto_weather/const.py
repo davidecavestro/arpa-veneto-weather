@@ -24,6 +24,21 @@ CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT = 20.5
 CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD = "night_partly_threshold"
 CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT = 18.5
 
+# Origin of an observation, exposed as the "source" attribute
+SOURCE_STATION = "station"
+SOURCE_AIR_QUALITY_STATION = "air_quality_station"
+SOURCE_BRIGHTNESS_STATION = "sky_brightness_station"
+SOURCE_FORECAST = "forecast"
+SOURCE_UNKNOWN = "unknown"
+
+# Criterion that decided the computed condition, exposed as "source_rule"
+RULE_PRECIPITATION = "precipitation"
+RULE_VISIBILITY = "visibility"
+RULE_WIND = "wind"
+RULE_SOLAR_RADIATION = "solar_radiation"
+RULE_SKY_BRIGHTNESS = "sky_brightness"
+RULE_FORECAST = "forecast"
+
 CONF_AIR_QUALITY = "air_quality"
 CONF_PM10_STATION = "pm10_station"
 CONF_PM25_STATION = "pm25_station"

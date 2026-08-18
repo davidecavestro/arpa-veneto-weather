@@ -9,11 +9,13 @@ from .const import (
     API_BASE, CARDINAL_DIRECTIONS, DOMAIN
 )
 
+from .provenance import Provenance
 from .thresholds import DayThresholds, NightThresholds
 
 from astral import LocationInfo
 from astral.sun import sun, elevation
 from astral.moon import phase
+from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta, UTC
 from math import radians, cos, sin, asin, sqrt
 
@@ -31,6 +33,16 @@ BRIGHTNESS_MAX_STATIONS = 5
 # readings older than this no longer describe the current sky
 BRIGHTNESS_MAX_AGE_HOURS = 6
 
+
+@dataclass
+class SkyBrightnessReading:
+    """A night sky brightness reading, with the station that observed it."""
+
+    value: float
+    station_name: str | None = None
+    observed_at: str | None = None
+
+
 class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
     """Data update coordinator for ARPA Veneto."""
 
@@ -38,6 +50,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         """Initialize the data update coordinator."""
         self.station_id = config_entry.data.get("station_id")
         self.zone_id = config_entry.data.get("zone_id")
+        self.zone_name = config_entry.data.get("zone_name")
         self.latitude = config_entry.data.get("station_latitude")
         self.longitude = config_entry.data.get("station_longitude")
         self.infer_condition = config_entry.options.get(const.CONF_INFER_CONDITION)
@@ -66,18 +79,36 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         pm25_response = self.fetch_air_quality_data(
             self.pm25_station_id, 'PM2.5') if self.pm25_station_id and self.pm25_station_id != "None" else None
 
-        sensor_data, sensor_data_raw = await sensor_response
+        sensor_data, sensor_data_raw, sources = await sensor_response
         forecast_data, forecast_raw = await forecast_response
-        sensor_data["pm10"] = (await pm10_response).get("MEDIA", None) if pm10_response else None
-        sensor_data["pm25"] = (await pm25_response).get("MEDIA", None) if pm25_response else None
-        sensor_data["ozone"] = (await ozone_response).get("MEDIA", None) if ozone_response else None
+
+        for key, response in (("pm10", pm10_response),
+                              ("pm25", pm25_response),
+                              ("ozone", ozone_response)):
+            latest = await response if response else None
+            sensor_data[key] = latest.get("MEDIA", None) if latest else None
+            if latest:
+                sources[key] = Provenance(
+                    source=const.SOURCE_AIR_QUALITY_STATION,
+                    name=latest.get("STAZIONE"),
+                    observed_at=_arpav_isoformat(latest.get("DATA")),
+                )
+
+        # this one is a forecast, not an observation: it comes from the bulletin
+        nearest_forecast = self._nearest_forecast(datetime.now(), forecast_data)
+        if nearest_forecast:
+            sources["precipitation_probability"] = Provenance(
+                source=const.SOURCE_FORECAST,
+                name=self.zone_name,
+                observed_at=nearest_forecast["datetime"].isoformat(),
+            )
 
         day_cfg = DayThresholds()
         night_cfg = NightThresholds()
         # Determine the current condition based on configuration
         match self.infer_condition:
             case const.CONF_INFER_CONDITION_FROM_SENSORS | None:
-                sensor_data["condition"] = await self._compute_condition_from_sensors(
+                sensor_data["condition"], sources["condition"] = await self._compute_condition_from_sensors(
                     self.latitude, self.longitude, sensor_data, forecast=forecast_data)
             case const.CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
                 opts = self.config_entry.options
@@ -98,7 +129,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                         const.CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT),
                 )
 
-                sensor_data["condition"] = await self._compute_condition_from_sensors(
+                sensor_data["condition"], sources["condition"] = await self._compute_condition_from_sensors(
                     self.latitude, self.longitude, sensor_data, day_cfg, night_cfg, forecast=forecast_data)
             case _:  # CONF_INFER_CONDITION_DISABLED or any other value
                 pass  # Do not compute condition
@@ -108,6 +139,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             "forecast_raw": forecast_raw,
             "sensors": sensor_data,  # Include sensor data like temperature
             "sensors_raw": sensor_data_raw,
+            "sources": sources,  # Where each value comes from, keyed as in "sensors"
         }
 
     async def fetch_station_data(self, station_id):
@@ -136,44 +168,22 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         filtered_data = list(latest_by_type.values())
 
         extracted_data = {}
+        sources = {}
         # Extract temperature, humidity, and other data
         for entry in filtered_data:
             extracted_data["station_name"] = entry.get("nome_stazione")
 
-            tipo = entry.get("tipo")
-            valore = entry.get("valore")
-            # latitudine = entry.get("latitudine")
-            # longitudine = entry.get("longitudine")
+            values = _values_from_observation(entry)
+            extracted_data.update(values)
 
-            if tipo.startswith("TARIA"):
-                extracted_data["temperature"] = float(valore)
-            elif tipo.startswith("UMID"):
-                extracted_data["humidity"] = int(valore)
-            elif tipo == "VISIB":
-                extracted_data["visibility"] = round(int(valore) / 1000, 2)
-            elif tipo == "PRESS":
-                extracted_data["pressure"] = float(valore)
-            elif tipo == "PREC":
-                extracted_data["precipitation"] = float(valore)
-            elif tipo.startswith("DVENTO"):
-                degrees = int(valore)
-                extracted_data["native_wind_bearing"] = degrees
-                extracted_data["wind_bearing"] = CARDINAL_DIRECTIONS[int((degrees + 11.25)/22.5)]
-            elif tipo.startswith("VVENTO"):
-                extracted_data["wind_speed"] = round(float(valore) * 3.6, 2)
-            elif tipo == "RADSOL":
-                # Assuming UV Fraction = 6% => 0.06
-                if (entry.get("unitnm") == "MJ/m2"):
-                    # For MJ/m², the scaling factor is 40 because it includes cumulative energy and time
-                    extracted_data["uv_index"] = round(float(valore) * 0.06 * 40)
-                    extracted_data["ghi"] = round(mj_to_wm2(float(valore), 3600))
-                elif (entry.get("unitnm") == "w/m2"):
-                    # For W/m², the scaling factor is 0.04 because it represents instantaneous power
-                    extracted_data["uv_index"] = round(float(valore) * 0.06 * 0.04)
-                    extracted_data["ghi"] = round(float(valore))
-            elif tipo == "BFOGL":
-                # Leaf wetness, reported as the share of the interval the leaf was wet
-                extracted_data["leaf_wetness"] = float(valore)
+            # each observation carries its own timestamp, so track it per value
+            observed_at = _arpav_isoformat(entry.get("dataora"))
+            for key in values:
+                sources[key] = Provenance(
+                    source=const.SOURCE_STATION,
+                    name=entry.get("nome_stazione"),
+                    observed_at=observed_at,
+                )
 
         # prepare additional precipitation metrics
         # given that
@@ -215,18 +225,30 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             precipitation_cumulative_today = _cumulate_since(precipitation_data, midnight)
 
             # Add these computed metrics to the extracted_data dictionary
-            extracted_data["precipitation_hourly"] = precipitation_hourly
-            extracted_data["precipitation_cumulative_today"] = precipitation_cumulative_today
-            extracted_data["precipitation_cumulative_1h"] = precipitation_cumulative_1h
-            extracted_data["precipitation_cumulative_3h"] = precipitation_cumulative_3h
-            extracted_data["precipitation_cumulative_6h"] = precipitation_cumulative_6h
-            extracted_data["precipitation_cumulative_12h"] = precipitation_cumulative_12h
-            extracted_data["precipitation_cumulative_24h"] = precipitation_cumulative_24h
+            computed = {
+                "precipitation_hourly": precipitation_hourly,
+                "precipitation_cumulative_today": precipitation_cumulative_today,
+                "precipitation_cumulative_1h": precipitation_cumulative_1h,
+                "precipitation_cumulative_3h": precipitation_cumulative_3h,
+                "precipitation_cumulative_6h": precipitation_cumulative_6h,
+                "precipitation_cumulative_12h": precipitation_cumulative_12h,
+                "precipitation_cumulative_24h": precipitation_cumulative_24h,
+            }
+            extracted_data.update(computed)
+
+            # they are aggregates of the station data points, up to the latest one
+            observed_at = _arpav_isoformat(precipitation_data[0].get("dataora"))
+            for key in computed:
+                sources[key] = Provenance(
+                    source=const.SOURCE_STATION,
+                    name=extracted_data.get("station_name"),
+                    observed_at=observed_at,
+                )
 
         extracted_data["last_update"] = datetime.now().isoformat()
         extracted_data["dt"] = dataora
 
-        return extracted_data, filtered_data
+        return extracted_data, filtered_data, sources
 
     async def fetch_air_quality_data(self, station_id, parametro):
         """Fetch air quality data from the station."""
@@ -271,7 +293,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         :param day_cfg: the day thresholds configuration
         :param night_cfg: the night thresholds configuration
         :param forecast: assembled forecast entries, used as a night fallback
-        :return: string ["clear-night", "partlycloudy", "cloudy", "unknown"]
+        :return: a tuple with the condition string ["clear-night", "partlycloudy", "cloudy", "unknown"]
+            and the Provenance of the data that decided it
         """
 
         temperature = sensor_data.get("temperature")
@@ -282,27 +305,38 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         ghi = sensor_data.get("ghi")
 
+        def measured(rule):
+            """Return the provenance of a condition decided by the station."""
+
+            return Provenance(
+                source=const.SOURCE_STATION,
+                name=sensor_data.get("station_name"),
+                observed_at=_arpav_isoformat(sensor_data.get("dt")),
+                rule=rule,
+            )
+
         # Precipitation overrides everything
         if precipitation is not None and precipitation > 0:
+            rain = measured(const.RULE_PRECIPITATION)
             if temperature is not None:
                 # lowest threshold first, otherwise the second branch is dead code
                 if temperature <= 0:
-                    return "snowy"
+                    return "snowy", rain
                 elif temperature <= 5:
-                    return "snowy-rainy"
+                    return "snowy-rainy", rain
                 if precipitation > 20:
-                    return "pouring"
-            return "rainy"
+                    return "pouring", rain
+            return "rainy", rain
 
         # Visibility overrides wind
         if visibility is not None:
             if visibility < 1:
-                return "fog"
+                return "fog", measured(const.RULE_VISIBILITY)
             if visibility < 2 and humidity and humidity > 99:
-                return "fog"
+                return "fog", measured(const.RULE_VISIBILITY)
 
         if wind_speed and wind_speed > 30:
-            return "windy"
+            return "windy", measured(const.RULE_WIND)
 
         city = LocationInfo(latitude=lat, longitude=lon)
         s = sun(city.observer, date=dt.date(), tzinfo=dt.tzinfo)
@@ -310,14 +344,17 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         is_day = s["sunrise"] <= dt <= s["sunset"]
 
         if is_day:
+            radiation = measured(const.RULE_SOLAR_RADIATION)
+
             if ghi is None:
-                return "unknown"
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
 
             # Sun elevation in degrees
             h_sun = elevation(city.observer, dt)
 
             if h_sun <= 0:
-                return "unknown"  # Sun below horizon (transitions)
+                # Sun below horizon (transitions)
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
 
             # Theoretical maximum irradiance (approximated)
             ghi_clear = 1000 * sin(radians(h_sun))
@@ -327,20 +364,27 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
             # Empirical thresholds (to be calibrated on ARPA data)
             if ghi_ratio > day_cfg.clear:
-                return "sunny"
+                return "sunny", radiation
             elif ghi_ratio > day_cfg.partly_cloudy:
-                return "partlycloudy"
+                return "partlycloudy", radiation
             else:
                 if wind_speed and wind_speed > 30:
-                    return "windy-variant"
-                return "cloudy"
+                    return "windy-variant", measured(const.RULE_WIND)
+                return "cloudy", radiation
 
         else:
-            sky_brightness = await self.get_night_sky_brightness(lat, lon)
-            if sky_brightness is None:
+            reading = await self.get_night_sky_brightness(lat, lon)
+            if reading is None:
                 # the brightness network is published in daily batches, so at
                 # night there is often no fresh reading: fall back to the bulletin
-                return self._forecast_condition_at(dt, forecast, night=True) or "unknown"
+                return self._forecast_condition(dt, forecast, night=True)
+
+            brightness = Provenance(
+                source=const.SOURCE_BRIGHTNESS_STATION,
+                name=reading.station_name,
+                observed_at=reading.observed_at,
+                rule=const.RULE_SKY_BRIGHTNESS,
+            )
 
             illum = moon_illumination(dt)
             if illum > 50:
@@ -350,17 +394,35 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             else:
                 offset = 0
 
-            if sky_brightness + offset > night_cfg.clear:
-                return "clear-night"
-            elif sky_brightness + offset > night_cfg.partly_cloudy:
-                return "partlycloudy"
+            if reading.value + offset > night_cfg.clear:
+                return "clear-night", brightness
+            elif reading.value + offset > night_cfg.partly_cloudy:
+                return "partlycloudy", brightness
             else:
                 if wind_speed and wind_speed > 30:
-                    return "windy-variant"
-                return "cloudy"
+                    return "windy-variant", measured(const.RULE_WIND)
+                return "cloudy", brightness
 
-    def _forecast_condition_at(self, dt, forecast, night=False):
-        """Return the forecast condition closest to the given datetime, or None."""
+    def _forecast_condition(self, dt, forecast, night=False):
+        """Return the forecast condition closest to a datetime, with its provenance."""
+
+        nearest = self._nearest_forecast(dt, forecast)
+        if nearest is None:
+            return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
+
+        condition = nearest["condition"]
+        if night and condition in ("sunny", "clear"):
+            condition = "clear-night"
+
+        return condition, Provenance(
+            source=const.SOURCE_FORECAST,
+            name=self.zone_name,
+            observed_at=nearest["datetime"].isoformat(),
+            rule=const.RULE_FORECAST,
+        )
+
+    def _nearest_forecast(self, dt, forecast):
+        """Return the forecast entry closest to the given datetime, or None."""
 
         candidates = [
             f for f in (forecast or [])
@@ -372,15 +434,10 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             return None
 
         target = dt.replace(tzinfo=None)
-        nearest = min(candidates, key=lambda f: abs(f["datetime"] - target))
-        condition = nearest["condition"]
-
-        if night and condition in ("sunny", "clear"):
-            return "clear-night"
-        return condition
+        return min(candidates, key=lambda f: abs(f["datetime"] - target))
 
     async def get_night_sky_brightness(self, lat, lon):
-        """Approximate night sky brightness (mag/arcsec²) based on location."""
+        """Return the nearest usable night sky brightness reading, or None."""
 
         url = f"{API_BASE}/meteo_meteogrammi?rete=MGRAMMIBRI&coordcd=20067&orario=0"
         async with aiohttp.ClientSession() as session, session.get(url) as response:
@@ -392,14 +449,15 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         stations = sort_locations_by_distance(data.get("data", []), lat, lon)
 
         for station in stations[:BRIGHTNESS_MAX_STATIONS]:
-            sky_brightness = await self._fetch_station_brightness(station.get("codseqst"))
-            if sky_brightness is not None:
-                return sky_brightness
+            reading = await self._fetch_station_brightness(
+                station.get("codseqst"), station.get("nome_stazione"))
+            if reading is not None:
+                return reading
 
         _LOGGER.debug("No usable sky brightness reading from the nearby stations")
         return None
 
-    async def _fetch_station_brightness(self, codseqst):
+    async def _fetch_station_brightness(self, codseqst, station_name=None):
         """Return the latest usable brightness reading of a station, or None."""
 
         if codseqst is None:
@@ -436,7 +494,72 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         if datetime.now() - reading_dt > timedelta(hours=BRIGHTNESS_MAX_AGE_HOURS):
             return None
 
-        return sky_brightness
+        return SkyBrightnessReading(
+            value=sky_brightness,
+            station_name=station_name or latest.get("nome_stazione"),
+            observed_at=_arpav_isoformat(latest.get("dataora")),
+        )
+
+
+def _values_from_observation(entry):
+    """Map a single meteogram observation to the sensor values it feeds."""
+
+    tipo = entry.get("tipo")
+    valore = entry.get("valore")
+
+    if tipo is None or valore is None:
+        return {}
+
+    if tipo.startswith("TARIA"):
+        return {"temperature": float(valore)}
+    if tipo.startswith("UMID"):
+        return {"humidity": int(valore)}
+    if tipo == "VISIB":
+        return {"visibility": round(int(valore) / 1000, 2)}
+    if tipo == "PRESS":
+        return {"pressure": float(valore)}
+    if tipo == "PREC":
+        return {"precipitation": float(valore)}
+    if tipo.startswith("DVENTO"):
+        degrees = int(valore)
+        return {
+            "native_wind_bearing": degrees,
+            "wind_bearing": CARDINAL_DIRECTIONS[int((degrees + 11.25)/22.5)],
+        }
+    if tipo.startswith("VVENTO"):
+        return {"wind_speed": round(float(valore) * 3.6, 2)}
+    if tipo == "RADSOL":
+        # Assuming UV Fraction = 6% => 0.06
+        if (entry.get("unitnm") == "MJ/m2"):
+            # For MJ/m², the scaling factor is 40 because it includes cumulative energy and time
+            return {
+                "uv_index": round(float(valore) * 0.06 * 40),
+                "ghi": round(mj_to_wm2(float(valore), 3600)),
+            }
+        if (entry.get("unitnm") == "w/m2"):
+            # For W/m², the scaling factor is 0.04 because it represents instantaneous power
+            return {
+                "uv_index": round(float(valore) * 0.06 * 0.04),
+                "ghi": round(float(valore)),
+            }
+        return {}
+    if tipo == "BFOGL":
+        # Leaf wetness, reported as the share of the interval the leaf was wet
+        return {"leaf_wetness": float(valore)}
+
+    return {}
+
+
+def _arpav_isoformat(dataora):
+    """Return an ARPAV timestamp as an ISO string, with its fixed +0100 offset."""
+
+    if not dataora:
+        return None
+
+    try:
+        return datetime.strptime(dataora + " +0100", "%Y-%m-%dT%H:%M:%S %z").isoformat()
+    except (TypeError, ValueError):
+        return dataora
 
 
 def find_nearest_location(locations, target_lat, target_lon):
