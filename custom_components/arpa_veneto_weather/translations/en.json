@@ -35,6 +35,18 @@
         "step": {
             "init": {
                 "sections": {
+                    "observations": {
+                        "name": "Additional observations",
+                        "description": "ARPAV stations do not observe the state of the sky, and some of them report neither visibility nor pressure. The aerodromes below, listed nearest first, publish a METAR observation every 30 minutes and can complete the missing data. Keep in mind that a distant aerodrome describes the general sky well and local fog or low clouds badly.",
+                        "data": {
+                            "metar_station": "Aerodrome issuing METAR",
+                            "metar_fill_missing": "Use it for the data the station does not provide"
+                        },
+                        "data_description": {
+                            "metar_station": "Select the aerodrome to use as an additional observation source",
+                            "metar_fill_missing": "Fill in visibility, pressure and any other value missing from the chosen station"
+                        }
+                    },
                     "air_quality": {
                         "name": "Air quality sensors",
                         "description": "Select the stations to use for air quality data. If you don't want to use air quality data, just leave these options unselected.",
@@ -54,7 +66,8 @@
                     "expose_forecast_json": "Expose JSON extra attribute for internal forecast data",
                     "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data",
                     "expose_sensors_raw": "Expose extra attributes for raw original sensor data",
-                    "infer_condition": "Compute the current condition"
+                    "infer_condition": "Compute the current condition",
+                    "night_condition": "Current condition at night"
                 }
             },
             "thresholds": {
@@ -73,6 +86,15 @@
                 "infer_condition_from_sensors": "From sensors",
                 "infer_condition_from_sensors_with_custom_thresholds": "From sensors using custom thresholds",
                 "infer_condition_disabled": "Don't compute"
+            }
+        },
+        "night_condition": {
+            "options": {
+                "night_condition_brightness_or_forecast": "Sky brightness, forecast as a fallback",
+                "night_condition_brightness": "Sky brightness only",
+                "night_condition_metar": "METAR observation, forecast as a fallback",
+                "night_condition_forecast": "Forecast bulletin",
+                "night_condition_unknown": "Leave it unknown"
             }
         }
     },

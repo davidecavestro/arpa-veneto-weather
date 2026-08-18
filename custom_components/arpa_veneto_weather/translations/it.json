@@ -33,6 +33,18 @@
         "step": {
             "init": {
                 "sections": {
+                    "observations": {
+                        "name": "Osservazioni aggiuntive",
+                        "description": "Le stazioni ARPAV non osservano lo stato del cielo, e alcune non riportano né visibilità né pressione. Gli aeroporti elencati qui sotto, dal più vicino, pubblicano un'osservazione METAR ogni 30 minuti e possono completare i dati mancanti. Tieni presente che un aeroporto distante descrive bene il cielo in generale e male la nebbia o le nuvole basse locali.",
+                        "data": {
+                            "metar_station": "Aeroporto che pubblica METAR",
+                            "metar_fill_missing": "Usalo per i dati che la stazione non fornisce"
+                        },
+                        "data_description": {
+                            "metar_station": "Scegli l'aeroporto da usare come fonte di osservazione aggiuntiva",
+                            "metar_fill_missing": "Completa visibilità, pressione e ogni altro valore che manca alla stazione scelta"
+                        }
+                    },
                     "air_quality": {
                         "name": "Sensori qualità aria",
                         "description": "Seleziona le stazioni da usare per i dati di qualità dell'aria. Se non vuoi avere questi dati, lascia semplicemente queste opzioni non selezionate.",
@@ -52,7 +64,8 @@
                     "expose_forecast_json": "Esponi attributo JSON aggiuntivo per i dati interni di previsione",
                     "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione",
                     "expose_sensors_raw": "Esponi attributi aggiuntivi per i dati originali di sensore",
-                    "infer_condition": "Calcola la condizione attuale"
+                    "infer_condition": "Calcola la condizione attuale",
+                    "night_condition": "Condizione attuale di notte"
                 }
             },
             "thresholds": {
@@ -71,6 +84,15 @@
                 "infer_condition_from_sensors": "Dai sensori disponibili",
                 "infer_condition_from_sensors_with_custom_thresholds": "Dai sensori usando soglie personalizzate",
                 "infer_condition_disabled": "Non calcolare"
+            }
+        },
+        "night_condition": {
+            "options": {
+                "night_condition_brightness_or_forecast": "Brillanza del cielo, previsione come ripiego",
+                "night_condition_brightness": "Solo brillanza del cielo",
+                "night_condition_metar": "Osservazione METAR, previsione come ripiego",
+                "night_condition_forecast": "Bollettino di previsione",
+                "night_condition_unknown": "Lasciala sconosciuta"
             }
         }
     },

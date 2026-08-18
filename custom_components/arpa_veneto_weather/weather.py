@@ -14,6 +14,8 @@ from .const import (
     CONF_EXPOSE_FORECAST_JSON,
     CONF_EXPOSE_FORECAST_RAW,
     CONF_EXPOSE_SENSORS_RAW,
+    CONF_METAR_STATION,
+    CONF_OBSERVATIONS,
     DOMAIN,
     API_BASE,
     KEY_COORDINATOR
@@ -74,6 +76,10 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
         self._attr_translation_key = 'arpav'
         self._attr_attribution = "Weather data by ARPA Veneto"
 
+        observations = config_entry.options.get(CONF_OBSERVATIONS) or {}
+        if observations.get(CONF_METAR_STATION) not in (None, "None"):
+            self._attr_attribution += ", METAR by NOAA Aviation Weather Center"
+
         self._attr_translation_placeholders = {
             "comune_name": self.comune_name,
             "station_name": self.station_name,
@@ -123,6 +129,12 @@ class ArpaVenetoWeatherEntity(CoordinatorEntity, WeatherEntity):
     def uv_index(self):
         """Return the UV index from the coordinator data."""
         return self.coordinator.data["sensors"].get("uv_index")
+
+    @property
+    def cloud_coverage(self) -> float | None:
+        """Return the cloud coverage, when an additional observation reports it."""
+        observation = self.coordinator.data.get("metar")
+        return observation.cloud_coverage if observation else None
 
     @property
     def native_pressure(self) -> float | None:

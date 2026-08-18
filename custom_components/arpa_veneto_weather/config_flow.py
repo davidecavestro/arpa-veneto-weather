@@ -1,4 +1,6 @@
 """Config flow to configure Arpa Veneto Weather component."""
+import logging
+
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
@@ -27,7 +29,20 @@ from .const import (
     CONF_PM10_STATION,
     CONF_PM25_STATION,
     CONF_OZONE_STATION,
+    CONF_NIGHT_CONDITION,
+    CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST,
+    CONF_NIGHT_CONDITION_BRIGHTNESS,
+    CONF_NIGHT_CONDITION_METAR,
+    CONF_NIGHT_CONDITION_FORECAST,
+    CONF_NIGHT_CONDITION_UNKNOWN,
+    CONF_OBSERVATIONS,
+    CONF_METAR_STATION,
+    CONF_METAR_FILL_MISSING,
 )
+from . import metar
+from .coordinator import haversine
+
+_LOGGER = logging.getLogger(__name__)
 
 async def fetch_zone_names():
     """Fetch human-readable names for each zonaid."""
@@ -252,6 +267,14 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
         self.pm10_stations, _ = await pm10_stations_response
         self.pm25_stations, _ = await pm25_stations_response
 
+        # Fetch the aerodromes issuing METAR around the station
+        self.metar_stations = await self._async_metar_stations()
+        configured_metar = self.config_entry.options.get(
+            CONF_OBSERVATIONS, {}).get(CONF_METAR_STATION) or "None"
+        if configured_metar != "None" and configured_metar not in self.metar_stations:
+            # keep the current choice selectable even if the list is unavailable
+            self.metar_stations = {configured_metar: configured_metar} | self.metar_stations
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -286,6 +309,41 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                             translation_key=CONF_INFER_CONDITION
                         ),
                     ),
+                    vol.Optional(
+                        CONF_NIGHT_CONDITION,
+                        default=self.config_entry.options.get(
+                            CONF_NIGHT_CONDITION) or CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST,
+                                CONF_NIGHT_CONDITION_BRIGHTNESS,
+                                CONF_NIGHT_CONDITION_METAR,
+                                CONF_NIGHT_CONDITION_FORECAST,
+                                CONF_NIGHT_CONDITION_UNKNOWN,
+                            ],
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                            translation_key=CONF_NIGHT_CONDITION
+                        ),
+                    ),
+                    vol.Required(CONF_OBSERVATIONS): section(
+                        # the aerodromes are listed nearest first, with their distance:
+                        # a far away one describes the local sky poorly
+                        vol.Schema(
+                            {
+                                vol.Optional(
+                                    CONF_METAR_STATION,
+                                    default=configured_metar
+                                ): vol.In({"None": "-"} | self.metar_stations),
+                                vol.Optional(
+                                    CONF_METAR_FILL_MISSING,
+                                    default=self.config_entry.options.get(
+                                        CONF_OBSERVATIONS, {}).get(CONF_METAR_FILL_MISSING, True)
+                                ): bool,
+                            }
+                        ),
+                        {"collapsed": True}
+                    ),
                     vol.Required(CONF_AIR_QUALITY): section(
                         # for air stations, populate the list with fetched stations plus a "None" option
                         # also set the default value from existing config or "None" if not set
@@ -313,6 +371,42 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                 }
             )
         )
+
+    async def _async_station_coordinates(self):
+        """Return the coordinates of the configured station, fetching them if needed."""
+
+        latitude = self.config_entry.data.get("station_latitude")
+        longitude = self.config_entry.data.get("station_longitude")
+        if latitude is not None and longitude is not None:
+            return latitude, longitude
+
+        # entries created before the coordinates were stored
+        _, stations = await fetch_stations()
+        station = stations.get(self.config_entry.data.get("station_id")) or {}
+
+        return station.get("latitudine"), station.get("longitudine")
+
+    async def _async_metar_stations(self):
+        """Return the aerodromes issuing METAR near the station, nearest first."""
+
+        latitude, longitude = await self._async_station_coordinates()
+        if latitude is None or longitude is None:
+            return {}
+
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+            stations = await metar.async_fetch_stations(
+                latitude,
+                longitude,
+                lambda lat, lon: haversine(lat, lon, latitude, longitude),
+            )
+        except (aiohttp.ClientError, TimeoutError, TypeError, ValueError) as err:
+            # an optional source must not prevent the options from being edited
+            _LOGGER.warning("Unable to list the nearby METAR aerodromes: %s", err)
+            return {}
+
+        return {station.icao: station.label for station in stations}
 
     async def async_step_thresholds(self, user_input=None):
         """Manage the thresholds options."""

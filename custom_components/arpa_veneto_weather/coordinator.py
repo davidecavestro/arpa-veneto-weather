@@ -9,13 +9,14 @@ from .const import (
     API_BASE, CARDINAL_DIRECTIONS, DOMAIN
 )
 
+from . import metar
 from .provenance import Provenance
 from .thresholds import DayThresholds, NightThresholds
 
 from astral import LocationInfo
 from astral.sun import sun, elevation
 from astral.moon import phase
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone, timedelta, UTC
 from math import radians, cos, sin, asin, sqrt
 
@@ -59,6 +60,15 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         self.pm25_station_id = air_quality.get(const.CONF_PM25_STATION) if air_quality else None
         self.ozone_station_id = air_quality.get(const.CONF_OZONE_STATION) if air_quality else None
 
+        observations = config_entry.options.get(const.CONF_OBSERVATIONS) or {}
+        metar_station = observations.get(const.CONF_METAR_STATION)
+        self.metar_station = metar_station if metar_station not in (None, "None") else None
+        self.metar_fill_missing = observations.get(const.CONF_METAR_FILL_MISSING, True)
+        self.night_condition = (config_entry.options.get(const.CONF_NIGHT_CONDITION)
+                                or const.CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST)
+        self._metar_observation = None
+        self._metar_fetched_at = None
+
         super().__init__(
             hass,
             _LOGGER,
@@ -94,6 +104,11 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                     observed_at=_arpav_isoformat(latest.get("DATA")),
                 )
 
+        # additional observations, for what the chosen station does not provide
+        metar_observation = await self.async_metar_observation()
+        if metar_observation and self.metar_fill_missing:
+            _fill_missing_values(sensor_data, sources, metar_observation)
+
         # this one is a forecast, not an observation: it comes from the bulletin
         nearest_forecast = self._nearest_forecast(datetime.now(), forecast_data)
         if nearest_forecast:
@@ -109,7 +124,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         match self.infer_condition:
             case const.CONF_INFER_CONDITION_FROM_SENSORS | None:
                 sensor_data["condition"], sources["condition"] = await self._compute_condition_from_sensors(
-                    self.latitude, self.longitude, sensor_data, forecast=forecast_data)
+                    self.latitude, self.longitude, sensor_data, forecast=forecast_data,
+                    sources=sources)
             case const.CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
                 opts = self.config_entry.options
                 day_cfg = DayThresholds(
@@ -130,7 +146,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 )
 
                 sensor_data["condition"], sources["condition"] = await self._compute_condition_from_sensors(
-                    self.latitude, self.longitude, sensor_data, day_cfg, night_cfg, forecast=forecast_data)
+                    self.latitude, self.longitude, sensor_data, day_cfg, night_cfg,
+                    forecast=forecast_data, sources=sources)
             case _:  # CONF_INFER_CONDITION_DISABLED or any other value
                 pass  # Do not compute condition
 
@@ -140,7 +157,29 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
             "sensors": sensor_data,  # Include sensor data like temperature
             "sensors_raw": sensor_data_raw,
             "sources": sources,  # Where each value comes from, keyed as in "sensors"
+            "metar": metar_observation,  # Additional observations, when configured
         }
+
+    async def async_metar_observation(self):
+        """Return the latest METAR observation, refreshed at most every few minutes."""
+
+        if not self.metar_station:
+            return None
+
+        now = datetime.now(UTC)
+        if (self._metar_fetched_at is None
+                or now - self._metar_fetched_at >= metar.MIN_FETCH_INTERVAL):
+            observation = await metar.async_fetch_observation(self.metar_station)
+            self._metar_fetched_at = now
+            if observation is not None:
+                self._metar_observation = observation
+
+        # aerodromes with limited opening hours stop reporting overnight, and
+        # keeping their last report would describe the sky of hours ago
+        if self._metar_observation is None or not self._metar_observation.is_current:
+            return None
+
+        return self._metar_observation
 
     async def fetch_station_data(self, station_id):
         """Fetch data from the station."""
@@ -268,18 +307,18 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         return latest
 
-    async def _compute_condition_from_sensors(self, lat, long, sensor_data, day_cfg=DayThresholds(), night_cfg=NightThresholds(), forecast=None):
+    async def _compute_condition_from_sensors(self, lat, long, sensor_data, day_cfg=DayThresholds(), night_cfg=NightThresholds(), forecast=None, sources=None):
         """Compute the current condition based on sensor data."""
 
         dt = await self._local_dt(sensor_data.get("dt"))
-        return await self.classify_sky(lat, long, dt, sensor_data, day_cfg, night_cfg, forecast)
+        return await self.classify_sky(lat, long, dt, sensor_data, day_cfg, night_cfg, forecast, sources)
 
     async def _local_dt(self, dt_str):
         """Convert a datetime string to a localized datetime object."""
 
         return datetime.strptime(dt_str + " +0100", "%Y-%m-%dT%H:%M:%S %z")
 
-    async def classify_sky(self, lat, lon, dt, sensor_data, day_cfg: DayThresholds, night_cfg: NightThresholds, forecast=None):
+    async def classify_sky(self, lat, lon, dt, sensor_data, day_cfg: DayThresholds, night_cfg: NightThresholds, forecast=None, sources=None):
         """Classifies the sky condition.
 
         Based on:
@@ -293,6 +332,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         :param day_cfg: the day thresholds configuration
         :param night_cfg: the night thresholds configuration
         :param forecast: assembled forecast entries, used as a night fallback
+        :param sources: the Provenance of each sensor value, keyed as sensor_data
         :return: a tuple with the condition string ["clear-night", "partlycloudy", "cloudy", "unknown"]
             and the Provenance of the data that decided it
         """
@@ -305,8 +345,13 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         ghi = sensor_data.get("ghi")
 
-        def measured(rule):
-            """Return the provenance of a condition decided by the station."""
+        def measured(rule, key):
+            """Return the provenance of the value that decided the condition."""
+
+            provenance = (sources or {}).get(key)
+            if provenance is not None:
+                # the deciding value may well come from an additional source
+                return replace(provenance, rule=rule)
 
             return Provenance(
                 source=const.SOURCE_STATION,
@@ -317,7 +362,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
 
         # Precipitation overrides everything
         if precipitation is not None and precipitation > 0:
-            rain = measured(const.RULE_PRECIPITATION)
+            rain = measured(const.RULE_PRECIPITATION, "precipitation")
             if temperature is not None:
                 # lowest threshold first, otherwise the second branch is dead code
                 if temperature <= 0:
@@ -331,12 +376,12 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         # Visibility overrides wind
         if visibility is not None:
             if visibility < 1:
-                return "fog", measured(const.RULE_VISIBILITY)
+                return "fog", measured(const.RULE_VISIBILITY, "visibility")
             if visibility < 2 and humidity and humidity > 99:
-                return "fog", measured(const.RULE_VISIBILITY)
+                return "fog", measured(const.RULE_VISIBILITY, "visibility")
 
         if wind_speed and wind_speed > 30:
-            return "windy", measured(const.RULE_WIND)
+            return "windy", measured(const.RULE_WIND, "wind_speed")
 
         city = LocationInfo(latitude=lat, longitude=lon)
         s = sun(city.observer, date=dt.date(), tzinfo=dt.tzinfo)
@@ -344,7 +389,7 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         is_day = s["sunrise"] <= dt <= s["sunset"]
 
         if is_day:
-            radiation = measured(const.RULE_SOLAR_RADIATION)
+            radiation = measured(const.RULE_SOLAR_RADIATION, "ghi")
 
             if ghi is None:
                 return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
@@ -367,41 +412,93 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                 return "sunny", radiation
             elif ghi_ratio > day_cfg.partly_cloudy:
                 return "partlycloudy", radiation
-            else:
-                if wind_speed and wind_speed > 30:
-                    return "windy-variant", measured(const.RULE_WIND)
-                return "cloudy", radiation
+
+            return "cloudy", radiation
 
         else:
-            reading = await self.get_night_sky_brightness(lat, lon)
-            if reading is None:
+            return await self._night_condition(lat, lon, dt, night_cfg, forecast)
+
+    async def _night_condition(self, lat, lon, dt, night_cfg: NightThresholds, forecast=None):
+        """Report the sky while the sun is below the horizon, as configured.
+
+        No source works everywhere: the sky brightness network publishes daily
+        batches, so its readings describe the previous night rather than the
+        current one, and an aerodrome observes the sky in real time but from
+        however far away it happens to be. The choice is therefore left to the
+        user, defaulting to the historical behaviour.
+        """
+
+        match self.night_condition:
+            case const.CONF_NIGHT_CONDITION_UNKNOWN:
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
+
+            case const.CONF_NIGHT_CONDITION_FORECAST:
+                return self._forecast_condition(dt, forecast, night=True)
+
+            case const.CONF_NIGHT_CONDITION_METAR:
+                condition, provenance = await self._metar_condition(is_day=False)
+                if condition is not None:
+                    return condition, provenance
+                # no report available: better a forecast than nothing
+                return self._forecast_condition(dt, forecast, night=True)
+
+            case const.CONF_NIGHT_CONDITION_BRIGHTNESS:
+                condition, provenance = await self._brightness_condition(lat, lon, dt, night_cfg)
+                if condition is not None:
+                    return condition, provenance
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
+
+            case _:  # CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST, the default
+                condition, provenance = await self._brightness_condition(lat, lon, dt, night_cfg)
+                if condition is not None:
+                    return condition, provenance
                 # the brightness network is published in daily batches, so at
                 # night there is often no fresh reading: fall back to the bulletin
                 return self._forecast_condition(dt, forecast, night=True)
 
-            brightness = Provenance(
-                source=const.SOURCE_BRIGHTNESS_STATION,
-                name=reading.station_name,
-                observed_at=reading.observed_at,
-                rule=const.RULE_SKY_BRIGHTNESS,
-            )
+    async def _brightness_condition(self, lat, lon, dt, night_cfg: NightThresholds):
+        """Report the sky from the night sky brightness, or (None, None)."""
 
-            illum = moon_illumination(dt)
-            if illum > 50:
-                offset = -2
-            elif illum > 10:
-                offset = -1
-            else:
-                offset = 0
+        reading = await self.get_night_sky_brightness(lat, lon)
+        if reading is None:
+            return None, None
 
-            if reading.value + offset > night_cfg.clear:
-                return "clear-night", brightness
-            elif reading.value + offset > night_cfg.partly_cloudy:
-                return "partlycloudy", brightness
-            else:
-                if wind_speed and wind_speed > 30:
-                    return "windy-variant", measured(const.RULE_WIND)
-                return "cloudy", brightness
+        provenance = Provenance(
+            source=const.SOURCE_BRIGHTNESS_STATION,
+            name=reading.station_name,
+            observed_at=reading.observed_at,
+            rule=const.RULE_SKY_BRIGHTNESS,
+        )
+
+        illum = moon_illumination(dt)
+        if illum > 50:
+            offset = -2
+        elif illum > 10:
+            offset = -1
+        else:
+            offset = 0
+
+        if reading.value + offset > night_cfg.clear:
+            return "clear-night", provenance
+        elif reading.value + offset > night_cfg.partly_cloudy:
+            return "partlycloudy", provenance
+
+        return "cloudy", provenance
+
+    async def _metar_condition(self, is_day):
+        """Report the sky from the configured aerodrome, or (None, None)."""
+
+        observation = await self.async_metar_observation()
+        condition = metar.condition(observation, is_day)
+        if condition is None:
+            return None, None
+
+        return condition, Provenance(
+            source=const.SOURCE_METAR,
+            name=observation.name,
+            observed_at=observation.observed_at,
+            rule=const.RULE_CLOUD_COVER,
+        )
 
     def _forecast_condition(self, dt, forecast, night=False):
         """Return the forecast condition closest to a datetime, with its provenance."""
@@ -548,6 +645,21 @@ def _values_from_observation(entry):
         return {"leaf_wetness": float(valore)}
 
     return {}
+
+
+def _fill_missing_values(sensor_data, sources, observation):
+    """Complete the station data with the values it does not provide."""
+
+    for key, value in observation.values.items():
+        if value is None or sensor_data.get(key) is not None:
+            continue
+
+        sensor_data[key] = value
+        sources[key] = Provenance(
+            source=const.SOURCE_METAR,
+            name=observation.name,
+            observed_at=observation.observed_at,
+        )
 
 
 def _arpav_isoformat(dataora):

@@ -29,6 +29,7 @@ SOURCE_STATION = "station"
 SOURCE_AIR_QUALITY_STATION = "air_quality_station"
 SOURCE_BRIGHTNESS_STATION = "sky_brightness_station"
 SOURCE_FORECAST = "forecast"
+SOURCE_METAR = "metar"
 SOURCE_UNKNOWN = "unknown"
 
 # Criterion that decided the computed condition, exposed as "source_rule"
@@ -37,7 +38,21 @@ RULE_VISIBILITY = "visibility"
 RULE_WIND = "wind"
 RULE_SOLAR_RADIATION = "solar_radiation"
 RULE_SKY_BRIGHTNESS = "sky_brightness"
+RULE_CLOUD_COVER = "cloud_cover"
 RULE_FORECAST = "forecast"
+
+# Additional observations, to complete the ones of the chosen station
+CONF_OBSERVATIONS = "observations"
+CONF_METAR_STATION = "metar_station"
+CONF_METAR_FILL_MISSING = "metar_fill_missing"
+
+# What to report as the current condition while the sun is below the horizon
+CONF_NIGHT_CONDITION = "night_condition"
+CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST = "night_condition_brightness_or_forecast"
+CONF_NIGHT_CONDITION_BRIGHTNESS = "night_condition_brightness"
+CONF_NIGHT_CONDITION_METAR = "night_condition_metar"
+CONF_NIGHT_CONDITION_FORECAST = "night_condition_forecast"
+CONF_NIGHT_CONDITION_UNKNOWN = "night_condition_unknown"
 
 CONF_AIR_QUALITY = "air_quality"
 CONF_PM10_STATION = "pm10_station"

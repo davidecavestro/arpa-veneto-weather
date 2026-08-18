@@ -73,6 +73,8 @@ Once you have configured a station, you can control some options from ⚙ (its _
 - **Expose extra attributes for raw original sensor data**: Expose as sensors the data obtaining from the remote api call
 - **Compute the current condition**: Expose the weather state as computed from available metrics
 - **Choose stations providing air-quality data**: Since the set of [stations differs](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/aria/qualita-aria-dati-in-diretta) between PM10, PM2.5 and Ozone, the user can choose a specific station for each of them. 
+- **Current condition at night**: Choose which source describes the sky while the sun is below the horizon
+- **Additional observations**: Optionally choose an aerodrome publishing METAR reports, to observe the sky and to complete the data the chosen station does not provide
 
 ## Compute the current weather condition
 
@@ -114,6 +116,76 @@ using custom thresholds</b></i> to set custom thresholds
 for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i>
 during day and night.
 
+### The current condition at night
+
+Daylight is measured by the station itself, so the daytime sky is inferred from
+a local, near real-time observation. The night is the hard part, because no
+single source works everywhere:
+
+- the **night sky brightness** network publishes its readings in a single daily
+  batch (around 09:30, standard time), so at night the latest reading normally
+  describes the *previous* night rather than the current one, and is discarded
+  as stale;
+- the **forecast bulletin** is always available and covers the whole region, but
+  it is a forecast, not an observation;
+- a **METAR** report is an actual observation of the sky, published every 30
+  minutes, but it comes from the nearest aerodrome, which may be tens of
+  kilometres away;
+- some setups are better off with **no value at all** than with a value that is
+  not measured.
+
+The choice is therefore left to the user, under _Current condition at night_:
+
+| Option | Behaviour |
+| ------ | --------- |
+| _Sky brightness, forecast as a fallback_ | The default, and the historical behaviour: use the brightness reading when it is fresh enough, otherwise the bulletin |
+| _Sky brightness only_ | Use the brightness reading when fresh, otherwise leave the condition unknown |
+| _METAR observation, forecast as a fallback_ | Use the cloud cover observed by the configured aerodrome, and the bulletin when no report is available |
+| _Forecast bulletin_ | Always use the bulletin |
+| _Leave it unknown_ | Report no condition unless the station measurements alone decide it (rain, fog, wind) |
+
+Whatever the choice, the weather entity says which one was used through its
+`condition_source` attributes: see [Data provenance](#data-provenance).
+
+## Additional observations
+
+ARPAV stations do not observe the state of the sky, and several of them report
+neither visibility nor pressure: those sensors stay `unknown`. Aerodromes do
+observe all of it, and publish a
+[METAR](https://en.wikipedia.org/wiki/METAR) report every 30 minutes, with cloud
+cover reported layer by layer.
+
+Under _Additional observations_ you can select one, from the list of aerodromes
+around the station, **sorted by distance**. When configured, it provides:
+
+- the **cloud coverage** of the weather entity, as a percentage of the sky;
+- the **current condition at night**, if you selected the METAR option above;
+- any value **missing** from the chosen ARPAV station, typically visibility and
+  pressure, unless you turn that off.
+
+Values taken from a METAR are marked with `source: metar`, so they can always
+be told apart from the ones measured by the ARPAV station.
+
+> [!IMPORTANT]
+Distance matters more than it seems: an aerodrome 60 km away describes the
+general state of the sky well, and local fog or low stratus poorly, which in the
+Po valley is exactly the typical winter situation. The distance of each
+aerodrome is shown in the selection list.
+
+> [!TIP]
+Not every aerodrome reports around the clock: the smaller ones only publish
+during their opening hours, and the list says which ones are reporting at the
+moment. Choosing one is perfectly fine — reports older than 90 minutes are
+ignored, so outside those hours the values simply go back to being missing and
+the night condition falls back to whatever you configured. A nearby aerodrome
+reporting only by day can still be a better choice than a distant one reporting
+always.
+
+> [!NOTE]
+Reports are retrieved from the
+[Aviation Weather Center](https://aviationweather.gov/data/api/) of the US
+National Weather Service, which requires no credentials, and are fetched at most
+once every 10 minutes, since a METAR is issued every 30.
 
 ## Data provenance
 
@@ -130,14 +202,14 @@ attributes:
 
 | Attribute | Description |
 | --------- | ----------- |
-| `source` | Origin of the value: `station`, `air_quality_station`, `sky_brightness_station`, `forecast` or `unknown` |
+| `source` | Origin of the value: `station`, `air_quality_station`, `sky_brightness_station`, `metar`, `forecast` or `unknown` |
 | `source_name` | The reporting station, or the forecast zone |
 | `source_observed_at` | When the value was observed at the origin, which can be well before the last update |
 
 The weather entity exposes the same information for the current condition,
 prefixed with `condition_`, plus `condition_source_rule`: the criterion that
 decided the condition, one of `precipitation`, `visibility`, `wind`,
-`solar_radiation`, `sky_brightness` or `forecast`.
+`solar_radiation`, `sky_brightness`, `cloud_cover` or `forecast`.
 
 > [!TIP]
 `condition_source` is the honest way to tell a measured condition from a
