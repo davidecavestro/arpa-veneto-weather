@@ -81,19 +81,22 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
                     self.latitude, self.longitude, sensor_data, forecast=forecast_data)
             case const.CONF_INFER_CONDITION_FROM_SENSORS_WITH_CUSTOM_THRESHOLDS:
                 opts = self.config_entry.options
-                if opts.get("override_thresholds"):
-                    day_cfg = DayThresholds(
-                        clear_ratio=opts.get(
-                            "day_clear_ratio", const.CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT),
-                        partly_ratio=opts.get(
-                            "day_partly_ratio", const.CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT),
-                    )
-                    night_cfg = NightThresholds(
-                        cloudy_humidity=opts.get(
-                            "night_cloudy_humidity", const.CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT),
-                        dark_moon=opts.get(
-                            "night_dark_moon", const.CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT),
-                    )
+                day_cfg = DayThresholds(
+                    clear=opts.get(
+                        const.CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD,
+                        const.CONF_INFER_CONDITION_DAY_CLEAR_THRESHOLD_DEFAULT),
+                    partly_cloudy=opts.get(
+                        const.CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD,
+                        const.CONF_INFER_CONDITION_DAY_PARTLY_THRESHOLD_DEFAULT),
+                )
+                night_cfg = NightThresholds(
+                    clear=opts.get(
+                        const.CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD,
+                        const.CONF_INFER_CONDITION_NIGHT_CLEAR_THRESHOLD_DEFAULT),
+                    partly_cloudy=opts.get(
+                        const.CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD,
+                        const.CONF_INFER_CONDITION_NIGHT_PARTLY_THRESHOLD_DEFAULT),
+                )
 
                 sensor_data["condition"] = await self._compute_condition_from_sensors(
                     self.latitude, self.longitude, sensor_data, day_cfg, night_cfg, forecast=forecast_data)
