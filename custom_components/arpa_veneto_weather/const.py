@@ -49,6 +49,14 @@ CONF_METAR_FILL_MISSING = "metar_fill_missing"
 # Archive of the night sky brightness as long-term statistics
 CONF_ARCHIVE_BRIGHTNESS = "archive_brightness"
 
+# What to report as the current condition while the sun is above the horizon
+CONF_DAY_CONDITION = "day_condition"
+CONF_DAY_CONDITION_RADIATION = "day_condition_radiation"
+CONF_DAY_CONDITION_RADIATION_OR_METAR = "day_condition_radiation_or_metar"
+CONF_DAY_CONDITION_METAR = "day_condition_metar"
+CONF_DAY_CONDITION_FORECAST = "day_condition_forecast"
+CONF_DAY_CONDITION_UNKNOWN = "day_condition_unknown"
+
 # What to report as the current condition while the sun is below the horizon
 CONF_NIGHT_CONDITION = "night_condition"
 CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST = "night_condition_brightness_or_forecast"
