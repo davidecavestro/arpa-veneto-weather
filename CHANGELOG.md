@@ -1,3 +1,18 @@
+## [0.13.0] - 2026-08-19
+### :sparkles: New Features
+- [`f28dfe4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/f28dfe4cb5762ce13ce6ff60b0a256066cfe44f8) - add leaf wetness sensor
+- [`b4beb36`](https://github.com/davidecavestro/arpa-veneto-weather/commit/b4beb367e6359d00e4a364b9d08482ab1acf9716) - expose where every observation comes from
+- [`98cdfef`](https://github.com/davidecavestro/arpa-veneto-weather/commit/98cdfefa4fd1b30b9936a052ea7f5c4d8a91b18a) - optionally complete the data with METAR observations
+- [`6f19000`](https://github.com/davidecavestro/arpa-veneto-weather/commit/6f19000be9b539a48503a09e2935b088fb02371b) - optionally archive the night sky brightness as statistics
+
+### :bug: Bug Fixes
+- [`77360b0`](https://github.com/davidecavestro/arpa-veneto-weather/commit/77360b03749abf7f5316df6e9f462e922bd11e5d) - name the precipitation probability sensor, fix Italian pressure typo
+- [`7f77d2c`](https://github.com/davidecavestro/arpa-veneto-weather/commit/7f77d2c754d2995ef434b19ac3f4dbad57e63555) - use valid sensor device classes, add icons
+- [`3a10d11`](https://github.com/davidecavestro/arpa-veneto-weather/commit/3a10d11014317b23335e257a0af139a69245c24a) - apply the custom sky thresholds actually configured
+- [`f6109c5`](https://github.com/davidecavestro/arpa-veneto-weather/commit/f6109c57747a8cb45111cf9a149b02231edc74b3) - make the refresh_data service work
+- [`bfdfe3b`](https://github.com/davidecavestro/arpa-veneto-weather/commit/bfdfe3b84a853ecb48cf971fd8d8b8499e522288) - report the real daily temperature extremes
+
+
 ## [0.12.4] - 2026-08-17
 ### :bug: Bug Fixes
 - [`b68d0f9`](https://github.com/davidecavestro/arpa-veneto-weather/commit/b68d0f995e23cdaa62f1527ef2c56c6750188be5) - avoid crash when no night sky brightness reading is available
@@ -268,3 +283,4 @@
 [0.12.2]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.1...0.12.2
 [0.12.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.2...0.12.3
 [0.12.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.3...0.12.4
+[0.13.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.4...0.13.0
