@@ -1,3 +1,8 @@
+## [0.14.0] - 2026-08-19
+### :sparkles: New Features
+- [`dcd2b8e`](https://github.com/davidecavestro/arpa-veneto-weather/commit/dcd2b8efd07c1dc98b371e5da1c66dcbb80588d2) - let the day condition come from an aerodrome too
+
+
 ## [0.13.0] - 2026-08-19
 ### :sparkles: New Features
 - [`f28dfe4`](https://github.com/davidecavestro/arpa-veneto-weather/commit/f28dfe4cb5762ce13ce6ff60b0a256066cfe44f8) - add leaf wetness sensor
@@ -284,3 +289,4 @@
 [0.12.3]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.2...0.12.3
 [0.12.4]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.3...0.12.4
 [0.13.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.12.4...0.13.0
+[0.14.0]: https://github.com/davidecavestro/arpa-veneto-weather/compare/0.13.0...0.14.0
