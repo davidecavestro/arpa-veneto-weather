@@ -29,6 +29,12 @@ from .const import (
     CONF_PM10_STATION,
     CONF_PM25_STATION,
     CONF_OZONE_STATION,
+    CONF_DAY_CONDITION,
+    CONF_DAY_CONDITION_RADIATION,
+    CONF_DAY_CONDITION_RADIATION_OR_METAR,
+    CONF_DAY_CONDITION_METAR,
+    CONF_DAY_CONDITION_FORECAST,
+    CONF_DAY_CONDITION_UNKNOWN,
     CONF_NIGHT_CONDITION,
     CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST,
     CONF_NIGHT_CONDITION_BRIGHTNESS,
@@ -315,6 +321,23 @@ class ArpaVenetoWeatherOptionsFlowHandler(config_entries.OptionsFlow):
                         default=self.config_entry.options.get(
                             CONF_ARCHIVE_BRIGHTNESS) or False
                     ): bool,
+                    vol.Optional(
+                        CONF_DAY_CONDITION,
+                        default=self.config_entry.options.get(
+                            CONF_DAY_CONDITION) or CONF_DAY_CONDITION_RADIATION
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                CONF_DAY_CONDITION_RADIATION,
+                                CONF_DAY_CONDITION_RADIATION_OR_METAR,
+                                CONF_DAY_CONDITION_METAR,
+                                CONF_DAY_CONDITION_FORECAST,
+                                CONF_DAY_CONDITION_UNKNOWN,
+                            ],
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                            translation_key=CONF_DAY_CONDITION
+                        ),
+                    ),
                     vol.Optional(
                         CONF_NIGHT_CONDITION,
                         default=self.config_entry.options.get(

@@ -67,6 +67,7 @@
                     "expose_forecast_raw": "Expose JSON extra attribute for raw original forecast data",
                     "expose_sensors_raw": "Expose extra attributes for raw original sensor data",
                     "infer_condition": "Compute the current condition",
+                    "day_condition": "Current condition during the day",
                     "night_condition": "Current condition at night",
                     "archive_brightness": "Archive the night sky brightness as long-term statistics"
                 }
@@ -87,6 +88,15 @@
                 "infer_condition_from_sensors": "From sensors",
                 "infer_condition_from_sensors_with_custom_thresholds": "From sensors using custom thresholds",
                 "infer_condition_disabled": "Don't compute"
+            }
+        },
+        "day_condition": {
+            "options": {
+                "day_condition_radiation": "Solar radiation only",
+                "day_condition_radiation_or_metar": "Solar radiation, METAR observation as a fallback",
+                "day_condition_metar": "METAR observation, forecast as a fallback",
+                "day_condition_forecast": "Forecast bulletin",
+                "day_condition_unknown": "Leave it unknown"
             }
         },
         "night_condition": {

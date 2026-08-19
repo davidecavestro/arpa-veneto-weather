@@ -64,6 +64,8 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         metar_station = observations.get(const.CONF_METAR_STATION)
         self.metar_station = metar_station if metar_station not in (None, "None") else None
         self.metar_fill_missing = observations.get(const.CONF_METAR_FILL_MISSING, True)
+        self.day_condition = (config_entry.options.get(const.CONF_DAY_CONDITION)
+                              or const.CONF_DAY_CONDITION_RADIATION)
         self.night_condition = (config_entry.options.get(const.CONF_NIGHT_CONDITION)
                                 or const.CONF_NIGHT_CONDITION_BRIGHTNESS_OR_FORECAST)
         self._metar_observation = None
@@ -399,34 +401,79 @@ class ArpaVenetoDataUpdateCoordinator(DataUpdateCoordinator):
         is_day = s["sunrise"] <= dt <= s["sunset"]
 
         if is_day:
-            radiation = measured(const.RULE_SOLAR_RADIATION, "ghi")
-
-            if ghi is None:
-                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
-
-            # Sun elevation in degrees
-            h_sun = elevation(city.observer, dt)
-
-            if h_sun <= 0:
-                # Sun below horizon (transitions)
-                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
-
-            # Theoretical maximum irradiance (approximated)
-            ghi_clear = 1000 * sin(radians(h_sun))
-
-            # Normalization
-            ghi_ratio = ghi / ghi_clear if ghi_clear > 0 else 0
-
-            # Empirical thresholds (to be calibrated on ARPA data)
-            if ghi_ratio > day_cfg.clear:
-                return "sunny", radiation
-            elif ghi_ratio > day_cfg.partly_cloudy:
-                return "partlycloudy", radiation
-
-            return "cloudy", radiation
+            return await self._day_condition(city, dt, ghi, day_cfg, forecast, measured)
 
         else:
             return await self._night_condition(lat, lon, dt, night_cfg, forecast)
+
+    async def _day_condition(self, city, dt, ghi, day_cfg: DayThresholds, forecast, measured):
+        """Report the sky while the sun is above the horizon, as configured.
+
+        Solar radiation is a local measurement and stays the default, but not
+        every station carries a pyranometer: where it does not, the day has no
+        observed condition at all, and an aerodrome is the only one left.
+        """
+
+        match self.day_condition:
+            case const.CONF_DAY_CONDITION_UNKNOWN:
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
+
+            case const.CONF_DAY_CONDITION_FORECAST:
+                return self._forecast_condition(dt, forecast)
+
+            case const.CONF_DAY_CONDITION_METAR:
+                condition, provenance = await self._metar_condition(is_day=True)
+                if condition is not None:
+                    return condition, provenance
+                # no report available: better a forecast than nothing
+                return self._forecast_condition(dt, forecast)
+
+            case const.CONF_DAY_CONDITION_RADIATION_OR_METAR:
+                condition, provenance = self._radiation_condition(city, dt, ghi, day_cfg, measured)
+                if condition is not None:
+                    return condition, provenance
+                # no pyranometer, or the sun too low for the ratio to mean
+                # anything: the aerodrome observes the sky either way
+                condition, provenance = await self._metar_condition(is_day=True)
+                if condition is not None:
+                    return condition, provenance
+                # measured sources only: no forecast is served here
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
+
+            case _:  # CONF_DAY_CONDITION_RADIATION, the default
+                condition, provenance = self._radiation_condition(city, dt, ghi, day_cfg, measured)
+                if condition is not None:
+                    return condition, provenance
+                return "unknown", Provenance(source=const.SOURCE_UNKNOWN)
+
+    def _radiation_condition(self, city, dt, ghi, day_cfg: DayThresholds, measured):
+        """Report the sky from the incident solar radiation, or (None, None)."""
+
+        if ghi is None:
+            return None, None
+
+        # Sun elevation in degrees
+        h_sun = elevation(city.observer, dt)
+
+        if h_sun <= 0:
+            # Sun below horizon (transitions)
+            return None, None
+
+        radiation = measured(const.RULE_SOLAR_RADIATION, "ghi")
+
+        # Theoretical maximum irradiance (approximated)
+        ghi_clear = 1000 * sin(radians(h_sun))
+
+        # Normalization
+        ghi_ratio = ghi / ghi_clear if ghi_clear > 0 else 0
+
+        # Empirical thresholds (to be calibrated on ARPA data)
+        if ghi_ratio > day_cfg.clear:
+            return "sunny", radiation
+        elif ghi_ratio > day_cfg.partly_cloudy:
+            return "partlycloudy", radiation
+
+        return "cloudy", radiation
 
     async def _night_condition(self, lat, lon, dt, night_cfg: NightThresholds, forecast=None):
         """Report the sky while the sun is below the horizon, as configured.

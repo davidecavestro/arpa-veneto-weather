@@ -65,6 +65,7 @@
                     "expose_forecast_raw": "Esponi attributo JSON aggiuntivo per i dati originali di previsione",
                     "expose_sensors_raw": "Esponi attributi aggiuntivi per i dati originali di sensore",
                     "infer_condition": "Calcola la condizione attuale",
+                    "day_condition": "Condizione attuale di giorno",
                     "night_condition": "Condizione attuale di notte",
                     "archive_brightness": "Archivia la brillanza del cielo notturno come statistiche a lungo termine"
                 }
@@ -85,6 +86,15 @@
                 "infer_condition_from_sensors": "Dai sensori disponibili",
                 "infer_condition_from_sensors_with_custom_thresholds": "Dai sensori usando soglie personalizzate",
                 "infer_condition_disabled": "Non calcolare"
+            }
+        },
+        "day_condition": {
+            "options": {
+                "day_condition_radiation": "Solo radiazione solare",
+                "day_condition_radiation_or_metar": "Radiazione solare, osservazione METAR come ripiego",
+                "day_condition_metar": "Osservazione METAR, previsione come ripiego",
+                "day_condition_forecast": "Bollettino di previsione",
+                "day_condition_unknown": "Lasciala sconosciuta"
             }
         },
         "night_condition": {

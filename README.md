@@ -73,6 +73,7 @@ Once you have configured a station, you can control some options from ⚙ (its _
 - **Expose extra attributes for raw original sensor data**: Expose as sensors the data obtaining from the remote api call
 - **Compute the current condition**: Expose the weather state as computed from available metrics
 - **Choose stations providing air-quality data**: Since the set of [stations differs](https://www.arpa.veneto.it/dati-ambientali/dati-in-diretta/aria/qualita-aria-dati-in-diretta) between PM10, PM2.5 and Ozone, the user can choose a specific station for each of them. 
+- **Current condition during the day**: Choose which source describes the sky while the sun is above the horizon
 - **Current condition at night**: Choose which source describes the sky while the sun is below the horizon
 - **Additional observations**: Optionally choose an aerodrome publishing METAR reports, to observe the sky and to complete the data the chosen station does not provide
 
@@ -116,11 +117,30 @@ using custom thresholds</b></i> to set custom thresholds
 for separately switching between <i>clear</i>, <i>partly cloudy</i> and <i>cloudy</i>
 during day and night.
 
+### The current condition during the day
+
+Solar radiation is measured by the station itself, so where it is available the
+daytime sky is inferred from a local, near real-time measurement, and that stays
+the default. It is not available everywhere though: **92 of the 223 stations of
+the MGRAMMI network carry no pyranometer**, and for those the daytime condition
+would be `unknown` all day long, every day. The sun very low over the horizon is
+the same problem for a shorter while, since the ratio between the measured and
+the expected irradiance means little around sunrise and sunset.
+
+The choice is therefore left to the user, under _Current condition during the
+day_:
+
+| Option | Behaviour |
+| ------ | --------- |
+| _Solar radiation only_ | The default, and the historical behaviour: use the irradiance ratio, and leave the condition unknown when the station measures no radiation |
+| _Solar radiation, METAR observation as a fallback_ | Use the irradiance ratio when available, otherwise the cloud cover observed by the configured aerodrome. Both are observations, so no forecast is ever served |
+| _METAR observation, forecast as a fallback_ | Always use the aerodrome, and the bulletin when no report is available: for a station whose nearest aerodrome is closer, or more representative, than its own pyranometer |
+| _Forecast bulletin_ | Always use the bulletin |
+| _Leave it unknown_ | Report no condition unless the station measurements alone decide it (rain, fog, wind) |
+
 ### The current condition at night
 
-Daylight is measured by the station itself, so the daytime sky is inferred from
-a local, near real-time observation. The night is the hard part, because no
-single source works everywhere:
+The night is the harder part, because no single source works everywhere:
 
 - the **night sky brightness** network publishes its readings in a single daily
   batch (around 09:30, standard time), so at night the latest reading normally
@@ -159,7 +179,8 @@ Under _Additional observations_ you can select one, from the list of aerodromes
 around the station, **sorted by distance**. When configured, it provides:
 
 - the **cloud coverage** of the weather entity, as a percentage of the sky;
-- the **current condition at night**, if you selected the METAR option above;
+- the **current condition**, day or night, if you selected one of the METAR
+  options above;
 - any value **missing** from the chosen ARPAV station, typically visibility and
   pressure, unless you turn that off.
 
