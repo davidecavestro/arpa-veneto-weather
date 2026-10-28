@@ -1,6 +1,6 @@
 {
     "name": "arpa_veneto_weather",
-    "image": "mcr.microsoft.com/vscode/devcontainers/python:3.14-trixie",
+    "image": "mcr.microsoft.com/vscode/devcontainers/python:3.15-trixie",
     "postCreateCommand": "scripts/setup",
     "postStartCommand": "scripts/bootstrap",
     "forwardPorts": [8123],
